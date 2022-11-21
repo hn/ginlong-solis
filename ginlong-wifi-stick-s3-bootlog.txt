@@ -1,0 +1,127 @@
+ROM:[V0.1]
+FLASHRATE:4
+BOOT TYPE:0 XTAL:40000000
+IMG1 DATA[1128:10002000]
+IMG1 ENTRY[800053d:100021ef]
+IMG1 ENTER
+CHIPID[000000ff]
+read_mode idx:2, flash_speed idx:2
+calibration_result:[1:19:13][3:15]
+calibration_result:[2:21:11][1:15]
+calibration_result:[3:1:1][1:1]
+calibration_ok:[2:21:11]
+FLASH CALIB[NEW OK]
+OTA2 ADDR[8100000]
+OTAx SELE[ffffffff]
+OTA1 USE
+IMG2 DATA[0x800f1c0:36:0x10005000]
+IMG2 SIGN[RTKWin(10005008)]
+IMG2 ENTRY[0x10005000:0x800b105]
+BOOT_FLASH_RDP RDP enable
+RDP bin decryption Failed!
+checksum_ipsec = 0x46956286, checksum_rdp_flash = 0x80d838a
+2ndboot image start
+
+Press key 'w' to 2ndboot cli menu in 100ms.
+122: ota crc cal:0x7a1a param:0xffff
+
+17: ota upg_flag:0xffffcount:0 crc;0xffff
+
+30: No OTA upgrade.
+
+os image start
+System_Init1
+System_Init2
+interface 0 is initialized
+interface 1 is initialized
+
+Initializing WIFI ...
+LDO Mode, BD_Info: 0
+
+LDO Mode, BD_Info: 0
+
+WIFI initialized
+
+hal_wlan_init(75), Available heap 0x88992
+
+============free heap size =84328==========
+Read parameter success.
+------------Ali_V0001012F_SN5A12340123456789------------
+*****************************************
+The collector.total_working_time    :123456
+The collector_record.startup_cnt    :123
+The collector_record.restart_cnt    :1
+The collector_record.restart_reason :123
+The ginlong_flag.inverter_update_fail:0
+The http_info.download_record      :0
+*****************************************
+[ATWS]: _AT_WLAN_SCAN_
+1        ssid HOMEWIFI-FOO       channel 64      rssi -74
+2        ssid HOMEWIFI-BAR   channel 64      rssi -75
+3        ssid    channel 64      rssi -77
+[ATWS]: _AT_WLAN_SCAN_
+1        ssid HOMEWIFI-FOO       channel 64      rssi -73
+2        ssid HOMEWIFI-POF         channel 64      rssi -73
+3        ssid    channel 64      rssi -76
+
+LwIP_DHCP: dhcp stop.
+Deinitializing WIFI ...
+WIFI deinitialized
+Initializing WIFI ...
+LDO Mode, BD_Info: 0
+
+LDO Mode, BD_Info: 0
+
+WIFI initialized
+
+LwIP_DHCP: dhcp stop.
+Deinitializing WIFI ...
+WIFI deinitialized
+Initializing WIFI ...
+LDO Mode, BD_Info: 0
+
+LDO Mode, BD_Info: 0
+
+WIFI initialized
+
+RTL8195A[Driver]: set ssid [HOMEWIFI-FOO]
+
+RTL8195A[Driver]: start auth to 0c:12:34:56:78:9a
+
+
+RTL8195A[Driver]: auth success, start assoc
+
+RTL8195A[Driver]: association success(res=3)
+wlan1: 1 DL RSVD page success! DLBcnCount:01, poll:00000001
+
+RTL8195A[Driver]: set pairwise key to hw: alg:4(WEP40-1 WEP104-5 TKIP-2 AES-4)
+
+RTL8195A[Driver]: set group key to hw: alg:4(WEP40-1 WEP104-5 TKIP-2 AES-4) keyid:1
+OTA service init ...
+ota init success, ret:0
+
+DM Subscribe Failed... ...
+MQTT update successful .
+---------------------------------------------------------------------------
+[HEAP]| TotalSz    | FreeSz     | UsedSz     | MinFreeSz  | MaxFreeBlkSz  |
+      | 0x00023958 | 0x0000A750 | 0x00019208 | 0x00009A70 | 0x00008FE0    |
+---------------------------------------------------------------------------
+[POOL]| PoolSz     | FreeSz     | UsedSz     | BlkSz      | MaxFreeBlkSz  |
+      | 0x00002000 | 0x00001220 | 0x00000DE0 | 0x00000020 | 0x00000020    |
+---------------------------------------------------------------------------
+[ATWS]: _AT_WLAN_SCAN_
+1        ssid HOMEWIFI-FOO       channel 64      rssi -73
+2        ssid HOMEWIFI-BAR   channel 64      rssi -74
+3        ssid    channel 64      rssi -74
+MQTT update successful .
+---------------------------------------------------------------------------
+[HEAP]| TotalSz    | FreeSz     | UsedSz     | MinFreeSz  | MaxFreeBlkSz  |
+      | 0x00023958 | 0x0000A890 | 0x000190C8 | 0x00009100 | 0x00008FE0    |
+---------------------------------------------------------------------------
+[POOL]| PoolSz     | FreeSz     | UsedSz     | BlkSz      | MaxFreeBlkSz  |
+      | 0x00002000 | 0x00001240 | 0x00000DC0 | 0x00000020 | 0x00000020    |
+---------------------------------------------------------------------------
+[ATWS]: _AT_WLAN_SCAN_
+1        ssid HOMEWIFI-FOO       channel 64      rssi -74
+2        ssid HOMEWIFI-BAR   channel 64      rssi -75
+3        ssid    channel 64      rssi -76
