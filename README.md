@@ -52,10 +52,10 @@ Datasheet: [V2.2](https://m.eleparts.co.kr/data/_gextends/good-pdf/202103/good-p
 
 The stick is connected to the inverter via a type of proprietary [Exceedconn](http://www.exceedconn.com/) [EC04681-2014-BF](http://www.exceedconn.com/e_products_detail.asp?id=76) connector (circular pin arrangement: 1=VCC=5V, 2=GND, 3=RS485+, 4=RS485-) .
 The external antenna is connected via a standard [SMA connector](https://en.wikipedia.org/wiki/SMA_connector).
-You can open [the case](ginlong-wifi-stick-s3-case.jpg) by pressing [the notches](ginlong-wifi-stick-s3-cap.jpg) towards the centre of the stick.
+You can open [the case](solis-wifi-stick-s3-case.jpg) by pressing [the notches](solis-wifi-stick-s3-cap.jpg) towards the centre of the stick.
 
-![Solis WiFi Stick PCB Front](ginlong-wifi-stick-s3-pcb-front.jpg "Solis WiFi Stick PCB Front")
-![Solis WiFi Stick PCB Back](ginlong-wifi-stick-s3-pcb-back.jpg "Solis WiFi Stick PCB Back")
+![Solis WiFi Stick PCB Front](solis-wifi-stick-s3-pcb-front.jpg "Solis WiFi Stick PCB Front")
+![Solis WiFi Stick PCB Back](solis-wifi-stick-s3-pcb-back.jpg "Solis WiFi Stick PCB Back")
 
 There is a serial interface (LogCLI) on the PCB connected to `UART2_Log_TX` and `UART2_Log_RX` of the MCU (115200 8N1, 3.3 Volt):
 ```
@@ -89,7 +89,7 @@ Press key 'w' to 2ndboot cli menu in 100ms.
 30: No OTA upgrade.
 ```
 
-From the [full (anonymized) bootlog](ginlong-wifi-stick-s3-bootlog.txt) one can see that the circuit is based
+From the [full (anonymized) bootlog](solis-wifi-stick-s3-bootlog.txt) one can see that the circuit is based
 on the [RTL8195A](https://www.realtek.com/en/products/communications-network-ics/item/rtl8195am) chip
 which may suffer from [multiple security vulnerabilites](https://jfrog.com/blog/major-vulnerabilities-discovered-and-patched-in-realtek-rtl8195a-wi-fi-module/).
 
