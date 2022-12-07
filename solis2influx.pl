@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# ginlong2influx.pl
+# solis2influx.pl
 #
 # Read basic stats from Ginlong Solis WiFi Stick S3 and feed them to influx db
 #
