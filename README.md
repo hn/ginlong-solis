@@ -150,4 +150,5 @@ and [a discussion at esp8266.ru](https://esp8266.ru/forum/threads/emw3080.3013/)
 ## Credits
 
 - [jimmyburnworld](https://github.com/jimmyburnworld/) implemented [a similiar approach for Solis ESINV inverters](https://github.com/jimmyburnworld/SolisModbus-MQTT)
+  and [MalteSchm](https://github.com/MalteSchm/) updated it [for Solis INV inverters](https://github.com/MalteSchm/SolisModbus-MQTT).
 
