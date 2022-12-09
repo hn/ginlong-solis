@@ -147,3 +147,7 @@ One can find more info about the EMW3080 at
 [A_D Electronics](https://web.archive.org/web/20220309073607/https://adelectronics.ru/2017/11/07/%D1%81%D1%85%D0%B5%D0%BC%D0%BE%D1%82%D0%B5%D1%85%D0%BD%D0%B8%D0%BA%D0%B0-%D0%B8-%D0%BE%D0%B1%D0%B7%D0%BE%D1%80-%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D1%8F-emw3080/)
 and [a discussion at esp8266.ru](https://esp8266.ru/forum/threads/emw3080.3013/).
 
+## Credits
+
+- [jimmyburnworld](https://github.com/jimmyburnworld/) implemented [a similiar approach for Solis ESINV inverters](https://github.com/jimmyburnworld/SolisModbus-MQTT)
+
