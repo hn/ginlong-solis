@@ -46,18 +46,19 @@ enum solisdatatype {
   SDT_U32,
   SDT_S16,
   SDT_S32,
-  SDT_H16,    // Hex number
-  SDT_ITYPE,  // Inverter type definition
-  SDT_SNHEX,  // Serial number, 4 words hex encoded
-  SDT_SNASC,  // Serial number, 16 words direct ASCII
-  SDT_APP1,   // Appendix 1 - Product model
-  SDT_APP2,   // Appendix 2 - Inverter status
-  SDT_APP3,   // Appendix 3 - Grid standard
-  SDT_APP4,   // Appendix 4 - Power curve number
-  SDT_APP5,   // Appendix 5 - Fault status
-  SDT_APP6,   // Appendix 6 - Working status
-  SDT_APP7,   // Appendix 7
-  SDT_APP8,   // Appendix 8 - Setting flag
+  SDT_H16,      // Hex number
+  SDT_ITYPE,    // Inverter type definition
+  SDT_SNHEX,    // Serial number, 4 words hex encoded
+  SDT_SNASC,    // Serial number, 16 words direct ASCII
+  SDT_DATETIME, // Composed date and time
+  SDT_APP1,     // Appendix 1 - Product model
+  SDT_APP2,     // Appendix 2 - Inverter status
+  SDT_APP3,     // Appendix 3 - Grid standard
+  SDT_APP4,     // Appendix 4 - Power curve number
+  SDT_APP5,     // Appendix 5 - Fault status
+  SDT_APP6,     // Appendix 6 - Working status
+  SDT_APP7,     // Appendix 7
+  SDT_APP8,     // Appendix 8 - Setting flag
 };
 
 enum modbusobjecttype {
@@ -80,69 +81,71 @@ typedef struct {
 
 /* RS485_MODBUS map while inverter type is unknown */
 solisreg solisUNKNOWN[] = {
-  { MB_INPUTREG,  35000,  0,     20,   SDT_ITYPE,    1,      "",  "Solis inverter type definition" },
+  { MB_INPUTREG,  35000,  0,     20,    SDT_ITYPE,    1,      "",  "Solis inverter type definition" },
   {}
 };
 
 /* RS485_MODBUS (INV-3000ID EPM-36000ID) inverter protocol */
 solisreg solisINV[] = {
-  { MB_INPUTREG,   3000,  1,    300,    SDT_APP1,    1,      "",  "Product model" },
-  { MB_INPUTREG,   3005,  1,     60,     SDT_U32,    1,     "W",  "Active power" },
-  { MB_INPUTREG,   3007,  1,     60,     SDT_U32,    1,     "W",  "Total DC output power" },
-  { MB_INPUTREG,   3009,  1,     60,     SDT_U32,    1,   "kWh",  "Total energy" },
-  { MB_INPUTREG,   3011,  1,     90,     SDT_U32,    1,   "kWh",  "Energy this month" },
-  { MB_INPUTREG,   3013,  1,     90,     SDT_U32,    1,   "kWh",  "Energy last month" },
-  { MB_INPUTREG,   3015,  1,     90,     SDT_U16,   10,   "kWh",  "Energy today" },
-  { MB_INPUTREG,   3016,  1,     90,     SDT_U16,   10,   "kWh",  "Energy last day" },
-  { MB_INPUTREG,   3022,  1,     30,     SDT_U16,   10,     "V",  "DC voltage 1" },
-  { MB_INPUTREG,   3023,  1,     30,     SDT_U16,   10,     "A",  "DC current 1" },
-  { MB_INPUTREG,   3024,  1,     30,     SDT_U16,   10,     "V",  "DC voltage 2" },
-  { MB_INPUTREG,   3025,  1,     30,     SDT_U16,   10,     "A",  "DC current 2" },
-  { MB_INPUTREG,   3042,  1,     60,     SDT_U16,   10,    "°C",  "Inverter temperature" },
-  { MB_INPUTREG,   3043,  1,    120,     SDT_U16,  100,    "Hz",  "Grid frequency" },
-  { MB_INPUTREG,   3044,  1,     60,    SDT_APP2,    1,      "",  "Inverter status" },
-  { MB_INPUTREG,   3054,  1,    300,    SDT_APP3,    1,      "",  "Country standard code" },
-  { MB_INPUTREG,   3056,  1,     -1,     SDT_S32,    1,   "Var",  "Reactive power" },
-  { MB_INPUTREG,   3061,  1,    120,   SDT_SNHEX,    1,      "",  "Inverter SN" },
-  { MB_INPUTREG,   3072,  1,     60,    SDT_APP6,    1,      "",  "Working status" },
-  { MB_INPUTREG,   3076,  1,    300,     SDT_U16,    1,     "h",  "System Time (hour)" },
-  { MB_INPUTREG,   3077,  1,    300,     SDT_U16,    1,     "m",  "System Time (min)" },
-  { MB_INPUTREG,   3084,  1,     -1,     SDT_S32,    1,     "W",  "Meter active power" },
+  { MB_INPUTREG,   3000,  1,    300,     SDT_APP1,    1,      "",  "Product model" },
+  { MB_INPUTREG,   3005,  1,     60,      SDT_U32,    1,     "W",  "Active power" },
+  { MB_INPUTREG,   3007,  1,     60,      SDT_U32,    1,     "W",  "Total DC output power" },
+  { MB_INPUTREG,   3009,  1,     60,      SDT_U32,    1,   "kWh",  "Total energy" },
+  { MB_INPUTREG,   3011,  1,     90,      SDT_U32,    1,   "kWh",  "Energy this month" },
+  { MB_INPUTREG,   3013,  1,     90,      SDT_U32,    1,   "kWh",  "Energy last month" },
+  { MB_INPUTREG,   3015,  1,     90,      SDT_U16,   10,   "kWh",  "Energy today" },
+  { MB_INPUTREG,   3016,  1,     90,      SDT_U16,   10,   "kWh",  "Energy last day" },
+  { MB_INPUTREG,   3022,  1,     30,      SDT_U16,   10,     "V",  "DC voltage 1" },
+  { MB_INPUTREG,   3023,  1,     30,      SDT_U16,   10,     "A",  "DC current 1" },
+  { MB_INPUTREG,   3024,  1,     30,      SDT_U16,   10,     "V",  "DC voltage 2" },
+  { MB_INPUTREG,   3025,  1,     30,      SDT_U16,   10,     "A",  "DC current 2" },
+  { MB_INPUTREG,   3042,  1,     60,      SDT_U16,   10,    "°C",  "Inverter temperature" },
+  { MB_INPUTREG,   3043,  1,    120,      SDT_U16,  100,    "Hz",  "Grid frequency" },
+  { MB_INPUTREG,   3044,  1,     60,     SDT_APP2,    1,      "",  "Inverter status" },
+  { MB_INPUTREG,   3045,  1,     -1,      SDT_S32,    1,     "W",  "Limit active power adjustment rated power" },
+  { MB_INPUTREG,   3047,  1,     -1,      SDT_S32,    1,   "Var",  "Limit reactive power adjustment rated power" },
+  { MB_INPUTREG,   3050,  1,     -1,      SDT_U16,  100,     "%",  "Power limit actual" },
+  { MB_INPUTREG,   3054,  1,    300,     SDT_APP3,    1,      "",  "Country standard code" },
+  { MB_INPUTREG,   3056,  1,     -1,      SDT_S32,    1,   "Var",  "Reactive power" },
+  { MB_INPUTREG,   3061,  1,    120,    SDT_SNHEX,    1,      "",  "Inverter SN" },
+  { MB_INPUTREG,   3072,  1,     60,     SDT_APP6,    1,      "",  "Working status" },
+  { MB_INPUTREG,   3073,  1,    300, SDT_DATETIME,    1,      "",  "System Time" },
+  { MB_INPUTREG,   3084,  1,     -1,      SDT_S32,    1,     "W",  "Meter active power" },
   {}
 };
 
 /* RS485_MODBUS (ESINV-33000ID) energy storage inverter protocol */
 solisreg solisESINV[] = {
-  { MB_INPUTREG,  33000,  0,    300,    SDT_APP1,    1,      "",  "Model no" },
-  { MB_INPUTREG,  33004,  0,    120,   SDT_SNASC,    1,      "",  "Inverter SN" },
-  { MB_INPUTREG,  33035,  0,     60,     SDT_U16,   10,   "kWh",  "Today energy generation" },
-  { MB_INPUTREG,  33036,  0,     60,     SDT_U16,   10,   "kWh",  "Yesterday energy generation" },
-  { MB_INPUTREG,  33049,  0,     30,     SDT_U16,   10,     "V",  "DC voltage 1" },
-  { MB_INPUTREG,  33050,  0,     30,     SDT_U16,   10,     "A",  "DC current 1" },
-  { MB_INPUTREG,  33051,  0,     30,     SDT_U16,   10,     "V",  "DC voltage 2" },
-  { MB_INPUTREG,  33052,  0,     30,     SDT_U16,   10,     "A",  "DC current 2" },
-  { MB_INPUTREG,  33053,  0,     30,     SDT_U16,   10,     "V",  "DC voltage 3" },
-  { MB_INPUTREG,  33054,  0,     30,     SDT_U16,   10,     "A",  "DC current 3" },
-  { MB_INPUTREG,  33055,  0,     30,     SDT_U16,   10,     "V",  "DC voltage 4" },
-  { MB_INPUTREG,  33056,  0,     30,     SDT_U16,   10,     "A",  "DC current 4" },
-  { MB_INPUTREG,  33057,  0,     60,     SDT_U32,    1,     "W",  "Total DC output power" },
-  { MB_INPUTREG,  33071,  0,     60,     SDT_U16,   10,     "V",  "DC bus voltage" },
-  { MB_INPUTREG,  33093,  0,     60,     SDT_U16,   10,    "°C",  "Inverter temperature" },
-  { MB_INPUTREG,  33094,  0,    120,     SDT_U16,  100,    "Hz",  "Grid frequency" },
-  { MB_INPUTREG,  33133,  0,     60,     SDT_U16,   10,     "V",  "Battery voltage" },
-  { MB_INPUTREG,  33134,  0,     60,     SDT_S16,   10,     "A",  "Battery current" },
-  { MB_INPUTREG,  33139,  0,     60,     SDT_U16,    1,     "%",  "Battery capacity SOC" },
-  { MB_INPUTREG,  33140,  0,     60,     SDT_U16,    1,     "%",  "Battery health SOH" },
-  { MB_INPUTREG,  33141,  0,     60,     SDT_U16,  100,     "V",  "Battery voltage BMS" },
-  { MB_INPUTREG,  33142,  0,     60,     SDT_S16,   10,     "A",  "Battery current BMS" },
-  { MB_INPUTREG,  33147,  0,     60,     SDT_U16,    1,     "W",  "Household load power" },
-  { MB_INPUTREG,  33149,  0,     60,     SDT_S32,    1,     "W",  "Battery power" },
-  { MB_INPUTREG,  33163,  0,     60,     SDT_U16,   10,   "kWh",  "Today battery charge energy" },
-  { MB_INPUTREG,  33164,  0,    300,     SDT_U16,   10,   "kWh",  "Yesterday battery charge energy" },
-  { MB_INPUTREG,  33171,  0,     60,     SDT_U16,   10,   "kWh",  "Today energy imported from grid" },
-  { MB_INPUTREG,  33172,  0,    300,     SDT_U16,   10,   "kWh",  "Yesterday energy imported from grid" },
-  { MB_INPUTREG,  33179,  0,     60,     SDT_U16,   10,   "kWh",  "Today load energy consumption" },
-  { MB_INPUTREG,  33180,  0,    300,     SDT_U16,   10,   "kWh",  "Yesterday load energy consumption" },
+  { MB_INPUTREG,  33000,  0,    300,     SDT_APP1,    1,      "",  "Model no" },
+  { MB_INPUTREG,  33004,  0,    120,    SDT_SNASC,    1,      "",  "Inverter SN" },
+  { MB_INPUTREG,  33035,  0,     60,      SDT_U16,   10,   "kWh",  "Today energy generation" },
+  { MB_INPUTREG,  33036,  0,     60,      SDT_U16,   10,   "kWh",  "Yesterday energy generation" },
+  { MB_INPUTREG,  33049,  0,     30,      SDT_U16,   10,     "V",  "DC voltage 1" },
+  { MB_INPUTREG,  33050,  0,     30,      SDT_U16,   10,     "A",  "DC current 1" },
+  { MB_INPUTREG,  33051,  0,     30,      SDT_U16,   10,     "V",  "DC voltage 2" },
+  { MB_INPUTREG,  33052,  0,     30,      SDT_U16,   10,     "A",  "DC current 2" },
+  { MB_INPUTREG,  33053,  0,     30,      SDT_U16,   10,     "V",  "DC voltage 3" },
+  { MB_INPUTREG,  33054,  0,     30,      SDT_U16,   10,     "A",  "DC current 3" },
+  { MB_INPUTREG,  33055,  0,     30,      SDT_U16,   10,     "V",  "DC voltage 4" },
+  { MB_INPUTREG,  33056,  0,     30,      SDT_U16,   10,     "A",  "DC current 4" },
+  { MB_INPUTREG,  33057,  0,     60,      SDT_U32,    1,     "W",  "Total DC output power" },
+  { MB_INPUTREG,  33071,  0,     60,      SDT_U16,   10,     "V",  "DC bus voltage" },
+  { MB_INPUTREG,  33093,  0,     60,      SDT_U16,   10,    "°C",  "Inverter temperature" },
+  { MB_INPUTREG,  33094,  0,    120,      SDT_U16,  100,    "Hz",  "Grid frequency" },
+  { MB_INPUTREG,  33133,  0,     60,      SDT_U16,   10,     "V",  "Battery voltage" },
+  { MB_INPUTREG,  33134,  0,     60,      SDT_S16,   10,     "A",  "Battery current" },
+  { MB_INPUTREG,  33139,  0,     60,      SDT_U16,    1,     "%",  "Battery capacity SOC" },
+  { MB_INPUTREG,  33140,  0,     60,      SDT_U16,    1,     "%",  "Battery health SOH" },
+  { MB_INPUTREG,  33141,  0,     60,      SDT_U16,  100,     "V",  "Battery voltage BMS" },
+  { MB_INPUTREG,  33142,  0,     60,      SDT_S16,   10,     "A",  "Battery current BMS" },
+  { MB_INPUTREG,  33147,  0,     60,      SDT_U16,    1,     "W",  "Household load power" },
+  { MB_INPUTREG,  33149,  0,     60,      SDT_S32,    1,     "W",  "Battery power" },
+  { MB_INPUTREG,  33163,  0,     60,      SDT_U16,   10,   "kWh",  "Today battery charge energy" },
+  { MB_INPUTREG,  33164,  0,    300,      SDT_U16,   10,   "kWh",  "Yesterday battery charge energy" },
+  { MB_INPUTREG,  33171,  0,     60,      SDT_U16,   10,   "kWh",  "Today energy imported from grid" },
+  { MB_INPUTREG,  33172,  0,    300,      SDT_U16,   10,   "kWh",  "Yesterday energy imported from grid" },
+  { MB_INPUTREG,  33179,  0,     60,      SDT_U16,   10,   "kWh",  "Today load energy consumption" },
+  { MB_INPUTREG,  33180,  0,    300,      SDT_U16,   10,   "kWh",  "Yesterday load energy consumption" },
   {}
 };
 
@@ -193,6 +196,9 @@ void loop() {
         break;
       case SDT_SNASC:
         mbreqlen = SNASCWORDS;
+        break;
+      case SDT_DATETIME:
+        mbreqlen = 6;
         break;
       case SDT_U32:
       case SDT_S32:
@@ -309,6 +315,15 @@ void loop() {
         Serial.print(serialnumber);
         break;
 
+      case SDT_DATETIME:  /* Composed date and time format */
+        {
+          char buf[8 + 1 + 8 + 1];
+          sprintf(buf, "%02d-%02d-%02d %02d:%02d:%02d", modbus.getResponseBuffer(0), modbus.getResponseBuffer(1), modbus.getResponseBuffer(2),
+                  modbus.getResponseBuffer(3), modbus.getResponseBuffer(4), modbus.getResponseBuffer(5));
+          Serial.print(buf);
+        }
+        break;
+
       case SDT_APP6:  /* Working status */
         {
           char *wstatus[] = {
@@ -341,6 +356,7 @@ void loop() {
     }
 
     Serial.println(solis[i].dataunit);
+    yield();
 
   }
 
