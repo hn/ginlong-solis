@@ -35,7 +35,7 @@ and the `INV` (inverter) map uses the 3xxx (thousands) range.
 It is probably a good practice (not thoroughly tested) to query register 35000 ("inverter type definition")
 and act according to the first two _decimal_ places of the read value
 (the documentation says: "high 8 bit means protocol version, low 8 bit means inverter
-model" but I think this is not exactly true):
+model", but I think this is only correct if you interpret it as some kind of 'decimal bits'):
 
 - `10`: see [RS485_MODBUS (INV-3000IDEPM-36000ID) inverter protocol](https://ginlongsolis.freshdesk.com/helpdesk/attachments/36112313359)
 - `20`: see [RS485_MODBUS (ESINV-33000ID) energy storage inverter protocol](https://forum.iobroker.net/assets/uploads/files/1619515984065-_without-control-hybrid-en-2020.9.15_rs485_modbus-esinv-33000id-hybrid-inverter.pdf)
@@ -134,7 +134,7 @@ Please input 1-2 to select functions
 ```
 
 When pulling TX pin 21 (`PA_30`) low during boot, the device waits for a xmodem
-transfer (UART boot mode):
+transfer (`UART boot mode`):
 
 ```
 ROM:[V0.1]
@@ -142,6 +142,23 @@ FLASHRATE:4
 UARTIMG_Download 2
 Open xModem Transfer on Log UART...
 ```
+
+When the device is in this mode, one can download the firmware using
+[RTLtool](https://esp8266.ru/forum/threads/rtl871xbx-tools-ameba-z.2673/) (depends on Python2):
+
+```
+$ ./rtltool.py -p /dev/ttyUSB0 gf
+Connecting...
+Flash Status value: 0x40
+$ ./rtltool.py -p /dev/ttyUSB0 rf 0x0 0x200000 dump-0x0-0x200000.bin
+Connecting...
+Read Flash data from 0x00000000 to 0x00200000 in file: dump-0x0-0x200000.bin ...
+Done!
+```
+
+The dump contains all kinds of interesting stuff and needs further analysis,
+[Realtek Ameba1 Memory Layout](https://raw.githubusercontent.com/ambiot/amb1_sdk/master/doc/UM0034%20Realtek%20Ameba-1%20memory%20layout.pdf)
+is a helpful starting point (page 7, flash memory).
 
 One can find more info about the EMW3080 at
 [A_D Electronics](https://web.archive.org/web/20220309073607/https://adelectronics.ru/2017/11/07/%D1%81%D1%85%D0%B5%D0%BC%D0%BE%D1%82%D0%B5%D1%85%D0%BD%D0%B8%D0%BA%D0%B0-%D0%B8-%D0%BE%D0%B1%D0%B7%D0%BE%D1%80-%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D1%8F-emw3080/)
@@ -151,7 +168,7 @@ and [a discussion at esp8266.ru](https://esp8266.ru/forum/threads/emw3080.3013/)
 
 - According to [Serial Number Naming Rule](https://ginlongsolis.freshdesk.com/support/solutions/articles/36000044079-serial-number-naming-rule)
   and [Ginlong Solis Serial Number decoder V1.1.pdf](https://ginlongsolis.freshdesk.com/helpdesk/attachments/36042847221)
-  Solis inverter serial numbers consist of 12 or 15 digits and can be more or less decoded like this: D-O-0-MM-0-YYMDD-SSSS.
+  Solis inverter serial numbers consist of 12 or 15 digits and can be more or less decoded like this: `D-O-0-MM-0-YYMDD-SSSS`.
   However, I can only partially confirm this (mine has 16 digits and a slightly different format), this would still need to be clarified.
 
 ## Credits
