@@ -168,8 +168,13 @@ and [a discussion at esp8266.ru](https://esp8266.ru/forum/threads/emw3080.3013/)
 
 - According to [Serial Number Naming Rule](https://ginlongsolis.freshdesk.com/support/solutions/articles/36000044079-serial-number-naming-rule)
   and [Ginlong Solis Serial Number decoder V1.1.pdf](https://ginlongsolis.freshdesk.com/helpdesk/attachments/36042847221)
-  Solis inverter serial numbers consist of 12 or 15 digits and can be more or less decoded like this: `D-O-0-MM-0-YYMDD-SSSS`.
-  However, I can only partially confirm this (mine has 16 digits and a slightly different format), this would still need to be clarified.
+  Solis inverter serial numbers consist of 12 or 15 digits. Supplemented by [helpful comments](https://github.com/hn/ginlong-solis/issues/1),
+  the following extended syntax can be derived::
+  ```
+         MM-0-YYMDD-SSSS (12 digit style)
+   D-O-0-MM-0-YYMDD-SSSS (15 digit style)
+  D-O-0-MMM-0-YYMDD-SSSS (16 digit style)
+  ```
 
 ## Credits
 
