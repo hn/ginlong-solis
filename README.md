@@ -112,9 +112,7 @@ Press key 'w' to 2ndboot cli menu in 100ms.
 30: No OTA upgrade.
 ```
 
-From the [full (anonymized) bootlog](solis-wifi-stick-s3-bootlog.txt) one can see that the circuit is based
-on the [RTL8195A](https://www.realtek.com/en/products/communications-network-ics/item/rtl8195am) chip
-which may suffer from [multiple security vulnerabilites](https://jfrog.com/blog/major-vulnerabilities-discovered-and-patched-in-realtek-rtl8195a-wi-fi-module/).
+See the [full (anonymized) bootlog](solis-wifi-stick-s3-bootlog.txt) for more details.
 
 When holding the 'w' key during boot an extremely limited `2ndboot` CLI starts:
 
@@ -163,6 +161,7 @@ is a helpful starting point (page 7, flash memory).
 One can find more info about the EMW3080 at
 [A_D Electronics](https://web.archive.org/web/20220309073607/https://adelectronics.ru/2017/11/07/%D1%81%D1%85%D0%B5%D0%BC%D0%BE%D1%82%D0%B5%D1%85%D0%BD%D0%B8%D0%BA%D0%B0-%D0%B8-%D0%BE%D0%B1%D0%B7%D0%BE%D1%80-%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D1%8F-emw3080/)
 and [a discussion at esp8266.ru](https://esp8266.ru/forum/threads/emw3080.3013/).
+It seems that the EMW3080 is some kind of relabeled [RTL8710BN](https://www.realtek.com/en/products/communications-network-ics/item/rtl8710bn) MCU.
 
 ## Misc
 
