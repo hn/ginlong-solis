@@ -63,8 +63,8 @@ This somewhat wierd behaviour again shows the immature state of the firmware.
 
 Since the current firmware does not support setting up your own remote logging server, there is [solis2influx.pl](solis2influx.pl) to read basic statistics from the web interface (`/inverter.cgi`) and publish this information in an influx db.
 
-The stick firmware might be based on [MXCHIPS's MiCO OS](https://github.com/MXCHIP/mico-os)
-(likely not the newer [MXCHIP's MXOS](https://github.com/MXCHIP/mxos)) embedded operating system.
+The stick firmware is based on [Alibaba's AliOS-Things 3.0.0](https://github.com/alibaba/AliOS-Things/tree/rel_3.0.0) embedded operating system
+(not sure if some parts of [MXCHIPS's MiCO OS](https://github.com/MXCHIP/mico-os) were been mixed in).
 It uses hardcoded DNS servers (`public1.alidns.com` and `public2.alidns.com`) and frequently pushes data to `*.iot-as-mqtt.eu-central-1.aliyuncs.com` (this server is likely chosen depending on your geolocation).
 
 ### Hardware
@@ -114,7 +114,7 @@ Press key 'w' to 2ndboot cli menu in 100ms.
 
 See the [full (anonymized) bootlog](solis-wifi-stick-s3-bootlog.txt) for more details.
 
-When holding the 'w' key during boot an extremely limited `2ndboot` CLI starts:
+When holding the 'w' key during boot an extremely limited [2ndboot](https://github.com/alibaba/AliOS-Things/tree/rel_3.0.0/middleware/uagent/ota/2ndboot) CLI starts:
 
 ```
 2ndboot image start 
@@ -148,20 +148,24 @@ When the device is in this mode, one can download the firmware using
 $ ./rtltool.py -p /dev/ttyUSB0 gf
 Connecting...
 Flash Status value: 0x40
-$ ./rtltool.py -p /dev/ttyUSB0 rf 0x0 0x200000 dump-0x0-0x200000.bin
+$ ./rtltool.py -p /dev/ttyUSB0 rf 0x8000000 0x200000 dump-0x8000000-0x200000.bin
 Connecting...
-Read Flash data from 0x00000000 to 0x00200000 in file: dump-0x0-0x200000.bin ...
+Read Flash data from 0x08000000 to 0x08200000 in file: dump-0x8000000-0x200000.bin ...
 Done!
 ```
 
-The dump contains all kinds of interesting stuff and needs further analysis,
-[Realtek Ameba1 Memory Layout](https://raw.githubusercontent.com/ambiot/amb1_sdk/master/doc/UM0034%20Realtek%20Ameba-1%20memory%20layout.pdf)
-is a helpful starting point (page 7, flash memory).
+The dump contains all kinds of interesting stuff (`AOS-R-3.0.0` and `sdk-c-3.0.1` clearly link to AliOS-Things 3.0.0) and needs further analysis.
 
+
+[Realtek AmebaZ Memory Layout](https://raw.githubusercontent.com/ambiot/amb1_sdk/master/doc/UM0111%20Realtek%20Ameba-Z%20memory%20layout.pdf),
+[Introduction to Ameba-Z SDK](https://raw.githubusercontent.com/ambiot/amb1_sdk/master/doc/UM0112%20Realtek%20Ameba-Z%20SDK%20quick%20start.pdf)
+and [mk3080/flash_partitions.c](https://github.com/alibaba/AliOS-Things/blob/rel_3.0.0/board/mk3080/flash_partitions.c) are helpful starting points.
+
+The EMW3080 is some kind of relabeled ([call it the same family](https://github.com/alibaba/AliOS-Things/blob/rel_3.0.0/board/mk3080/aos.mk))
+[RTL8710BN](https://www.realtek.com/en/products/communications-network-ics/item/rtl8710bn) MCU (Ameba-Z series).
 One can find more info about the EMW3080 at
 [A_D Electronics](https://web.archive.org/web/20220309073607/https://adelectronics.ru/2017/11/07/%D1%81%D1%85%D0%B5%D0%BC%D0%BE%D1%82%D0%B5%D1%85%D0%BD%D0%B8%D0%BA%D0%B0-%D0%B8-%D0%BE%D0%B1%D0%B7%D0%BE%D1%80-%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D1%8F-emw3080/)
 and [a discussion at esp8266.ru](https://esp8266.ru/forum/threads/emw3080.3013/).
-It seems that the EMW3080 is some kind of relabeled [RTL8710BN](https://www.realtek.com/en/products/communications-network-ics/item/rtl8710bn) MCU.
 
 ## Misc
 
