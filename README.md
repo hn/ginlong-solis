@@ -186,3 +186,5 @@ and [a discussion at esp8266.ru](https://esp8266.ru/forum/threads/emw3080.3013/)
 
 - [incub77](https://github.com/incub77/) offers [a comprehensive solution based on the Raspberry Pi](https://github.com/incub77/solis2mqtt)
 
+- How could it be otherwise than that Tasmota also offers [a solution for Modbus inverters](https://github.com/arendst/Tasmota/blob/master/tasmota/tasmota_xnrg_energy/xnrg_29_modbus.ino).
+
