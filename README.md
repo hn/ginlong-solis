@@ -179,6 +179,8 @@ and [a discussion at esp8266.ru](https://esp8266.ru/forum/threads/emw3080.3013/)
   D-O-0-MMM-0-YYMDD-SSSS (16 digit style)
   ```
 
+- Curiously, the HTML source files of the Solis S3 WiFi stick can be found in [this repository](https://github.com/c45449210/fs).
+
 ## Credits
 
 - [jimmyburnworld](https://github.com/jimmyburnworld/) implemented [a similiar approach for Solis ESINV inverters](https://github.com/jimmyburnworld/SolisModbus-MQTT)
