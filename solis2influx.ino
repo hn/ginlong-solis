@@ -27,8 +27,8 @@
 #define INFLUXDB_DB_NAME  "smarthome"
 #define INFLUXDB_MEAS     "solis"
 
-#define MODBUSPINTX       D6
 #define MODBUSPINRX       D5
+#define MODBUSPINTX       D6
 #define MODBUSBAUD        9600
 #define MODBUSINVERTERID  1
 
@@ -75,18 +75,18 @@ typedef struct {
   unsigned int readdelay;           // poll frequency in seconds, -1 to disable
   solisdatatype datatype;
   unsigned int datadiv;
-  char *dataunit;
-  char *dataname;
+  const char *dataunit;
+  const char *dataname;
 } solisreg;
 
 /* RS485_MODBUS map while inverter type is unknown */
-solisreg solisUNKNOWN[] = {
+const solisreg solisUNKNOWN[] = {
   { MB_INPUTREG,  35000,  0,     20,    SDT_ITYPE,    1,      "",  "Solis inverter type definition" },
   {}
 };
 
 /* RS485_MODBUS (INV-3000ID EPM-36000ID) inverter protocol */
-solisreg solisINV[] = {
+const solisreg solisINV[] = {
   { MB_INPUTREG,   3000,  1,    300,     SDT_APP1,    1,      "",  "Product model" },
   { MB_INPUTREG,   3005,  1,     60,      SDT_U32,    1,     "W",  "Active power" },
   { MB_INPUTREG,   3007,  1,     60,      SDT_U32,    1,     "W",  "Total DC output power" },
@@ -115,7 +115,7 @@ solisreg solisINV[] = {
 };
 
 /* RS485_MODBUS (ESINV-33000ID) energy storage inverter protocol */
-solisreg solisESINV[] = {
+const solisreg solisESINV[] = {
   { MB_INPUTREG,  33000,  0,    300,     SDT_APP1,    1,      "",  "Model no" },
   { MB_INPUTREG,  33004,  0,    120,    SDT_SNASC,    1,      "",  "Inverter SN" },
   { MB_INPUTREG,  33035,  0,     60,      SDT_U16,   10,   "kWh",  "Today energy generation" },
@@ -156,7 +156,7 @@ ModbusMaster modbus;
 unsigned long readlast[(sizeof(solisINV) > sizeof(solisESINV) ? sizeof(solisINV) : sizeof(solisESINV) ) / sizeof(solisreg)];
 char serialnumber[4 * SNHEXWORDS + 1];
 int serialvalid = 0;
-solisreg *solis = solisUNKNOWN;
+const solisreg *solis = solisUNKNOWN;
 
 void setup() {
   Serial.begin(115200);
@@ -326,7 +326,7 @@ void loop() {
 
       case SDT_APP6:  /* Working status */
         {
-          char *wstatus[] = {
+          const char *wstatus[] = {
             "Normal", "Initializing", "Grid off", "Fault to stop", "Standby", "Derating",
             "Limitating", "Backup OV Load", "Grid Surge Warn", "Fan fault Warn", "Reserved",
             "AC SPD ERROR VgSpdFail", "DC SPD ERROR DcSpdFail", "Reserved", "Reserved", "Reserved"
