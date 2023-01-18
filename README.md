@@ -65,13 +65,19 @@ Since the current firmware does not support setting up your own remote logging s
 
 The stick firmware is based on [Alibaba's AliOS-Things 3.0.0](https://github.com/alibaba/AliOS-Things/tree/rel_3.0.0) embedded operating system
 (not sure if some parts of [MXCHIPS's MiCO OS](https://github.com/MXCHIP/mico-os) were been mixed in).
-It uses hardcoded DNS servers (`public1.alidns.com` and `public2.alidns.com`) and frequently pushes data to `*.iot-as-mqtt.eu-central-1.aliyuncs.com` (this server is likely chosen depending on your geolocation).
+It uses [hardcoded DNS servers](https://github.com/alibaba/AliOS-Things/blob/rel_3.0.0/middleware/linkkit/wrappers/os/dns.c) (`public1.alidns.com` and `public2.alidns.com`) and frequently pushes data to `*.iot-as-mqtt.*.aliyuncs.com` (this server is chosen [depending on your geolocation](https://github.com/alibaba/AliOS-Things/blob/rel_3.0.0/middleware/linkkit/infra/infra_defs.c)).
 
 ### Hardware
 
 The stick hardware is based on [MXCHIP's](https://en.mxchip.com/) [EMW3080-E MCU](https://en.mxchip.com/productinfo/244846.html)
 (ARM Cortex-M4F, 2.4G Hz IEEE 802.11 b/g/n WiFi, Suffix `-E` denotes `IPEX antenna, MX1290 processor`).
 Datasheet: [V2.2](https://m.eleparts.co.kr/data/_gextends/good-pdf/202103/good-pdf-10094810-2.pdf).
+
+The EMW3080 is some kind of relabeled ([call it the same family](https://github.com/alibaba/AliOS-Things/blob/rel_3.0.0/board/mk3080/aos.mk))
+[RTL8710BN](https://www.realtek.com/en/products/communications-network-ics/item/rtl8710bn) MCU (Ameba-Z series).
+One can find more info about the EMW3080 at
+[A_D Electronics](https://web.archive.org/web/20220309073607/https://adelectronics.ru/2017/11/07/%D1%81%D1%85%D0%B5%D0%BC%D0%BE%D1%82%D0%B5%D1%85%D0%BD%D0%B8%D0%BA%D0%B0-%D0%B8-%D0%BE%D0%B1%D0%B7%D0%BE%D1%80-%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D1%8F-emw3080/)
+and [a discussion at esp8266.ru](https://esp8266.ru/forum/threads/emw3080.3013/).
 
 The stick is connected to the inverter via a type of proprietary [Exceedconn](http://www.exceedconn.com/) [EC04681-2014-BF](http://www.exceedconn.com/e_products_detail.asp?id=76) connector (circular pin arrangement: 1=VCC=5V, 2=GND, 3=RS485+, 4=RS485-) .
 The external antenna is connected via a standard [SMA connector](https://en.wikipedia.org/wiki/SMA_connector).
@@ -80,7 +86,12 @@ You can open [the case](solis-wifi-stick-s3-case.jpg) by pressing [the notches](
 ![Solis WiFi Stick PCB Front](solis-wifi-stick-s3-pcb-front.jpg "Solis WiFi Stick PCB Front")
 ![Solis WiFi Stick PCB Back](solis-wifi-stick-s3-pcb-back.jpg "Solis WiFi Stick PCB Back")
 
-There is a serial interface (LogCLI) on the PCB connected to `UART2_Log_TX` and `UART2_Log_RX` of the MCU (115200 8N1, 3.3 Volt):
+There is a serial interface (LogCLI) on the PCB connected to `UART2_Log_TX` and `UART2_Log_RX` of the MCU (115200 8N1, 3.3 Volt).
+
+### Analysis via the serial port
+
+You get a first impression when you examine the `UART2_Log` output:
+
 ```
 ROM:[V0.1]
 FLASHRATE:4
@@ -154,18 +165,54 @@ Read Flash data from 0x08000000 to 0x08200000 in file: dump-0x8000000-0x200000.b
 Done!
 ```
 
-The dump contains all kinds of interesting stuff (`AOS-R-3.0.0` and `sdk-c-3.0.1` clearly link to AliOS-Things 3.0.0) and needs further analysis.
+### Analysis of the memory content (firmware 1012F)
 
-
-[Realtek AmebaZ Memory Layout](https://raw.githubusercontent.com/ambiot/amb1_sdk/master/doc/UM0111%20Realtek%20Ameba-Z%20memory%20layout.pdf),
+The dump contains all kinds of interesting stuff (`AOS-R-3.0.0` and `sdk-c-3.0.1` clearly link to AliOS-Things 3.0.0).
+With the help of [Realtek AmebaZ Memory Layout](https://raw.githubusercontent.com/ambiot/amb1_sdk/master/doc/UM0111%20Realtek%20Ameba-Z%20memory%20layout.pdf),
 [Introduction to Ameba-Z SDK](https://raw.githubusercontent.com/ambiot/amb1_sdk/master/doc/UM0112%20Realtek%20Ameba-Z%20SDK%20quick%20start.pdf)
-and [mk3080/flash_partitions.c](https://github.com/alibaba/AliOS-Things/blob/rel_3.0.0/board/mk3080/flash_partitions.c) are helpful starting points.
+and [mk3080/flash_partitions.c](https://github.com/alibaba/AliOS-Things/blob/rel_3.0.0/board/mk3080/flash_partitions.c)
+one can reconstruct the flash partition table found at address `0x800e320`:
 
-The EMW3080 is some kind of relabeled ([call it the same family](https://github.com/alibaba/AliOS-Things/blob/rel_3.0.0/board/mk3080/aos.mk))
-[RTL8710BN](https://www.realtek.com/en/products/communications-network-ics/item/rtl8710bn) MCU (Ameba-Z series).
-One can find more info about the EMW3080 at
-[A_D Electronics](https://web.archive.org/web/20220309073607/https://adelectronics.ru/2017/11/07/%D1%81%D1%85%D0%B5%D0%BC%D0%BE%D1%82%D0%B5%D1%85%D0%BD%D0%B8%D0%BA%D0%B0-%D0%B8-%D0%BE%D0%B1%D0%B7%D0%BE%D1%80-%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D1%8F-emw3080/)
-and [a discussion at esp8266.ru](https://esp8266.ru/forum/threads/emw3080.3013/).
+```
+DESCRIPTION     START_ADDR    LENGTH
+Bootloader      0x0           0x8000        // = AliOS-Things/platform/mcu/rtl8710bn/bin/boot_all.bin
+Recovery        0xb000        0x6000        // 2ndboot
+Application     0x19000       0x127000
+OTA Storage     0x150000      0x127000
+Parameter1      0x2a0000      0x2000
+Parameter2      0x2a2000      0x2000        // WiFi credentials @ 0x2a3000
+Parameter3      0x2a4000      0x2000        // AliOS PK+PS+DN+DS
+Parameter4      0x2a6000      0x2000
+Parameter5      0x2a8000      0x10000
+Parameter55     0x2b8000      0x1000
+Parameter33     0x7fe000      0x1000        // Backup of Parameter3 ?
+Offline         0x300000      0x4fe000      // 0x1000 zeros + some noise
+```
+
+It is important to note that with a flash size of 2MB, all start addresses above `0x200000` are outside the flash.
+The OTA partition is thus too large and the ParameterX partitions are not in the flash at all, possibly this is SRAM or OTP.
+
+### Playing with the Alibaba IOT Platform
+
+Partition 'Parameter3' contains the 'Product Key' (PK) and 'Device Secret' (DS)
+needed to connect to the [Alibaba IOT Platform](https://www.alibabacloud.com/help/en/iot-platform/latest/establish-a-connection-between-a-device-and-iot-platform).
+The serial number of the stick is used as 'Device Name' (DN).
+With the [Link SDK for Python](https://www.alibabacloud.com/help/en/iot-platform/latest/link-sdk-for-python)
+you can easily impersonate as the inverter and send MQTT data to the cloud.
+
+### Analysis of the main application (firmware 1012F)
+
+The main application starts at `0x19000` with a 790112 bytes `TEXT` section for
+flash in place execution (XIP). It is followed at `0xd9e80` by a 7420 bytes `DATA`
+section for RAM execution. I will refer to this part as 'APP1'.
+
+The complete APP1 in OTA package format (including checksums) starts
+at `0x19000` with length 797628 and MD5 checksum `0a88cb5556ab28ffba63a8d56e131d56`.
+
+Somewhat unexpectedly, the APP1 part is followed by a second app ('APP2') starting
+with `TEXT` at `0xdbbbc` (length 222276) and `DATA` at `0x112020` (length 3656).
+It is currently not clear whether APP2 is being used at all, there is a suspicion
+that it is a leftover or alternative AT firmware.
 
 ## Misc
 
