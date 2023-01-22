@@ -246,6 +246,36 @@ with `TEXT` at `0xdbbbc` (length 222276) and `DATA` at `0x112020` (length 3656).
 It is currently not clear whether APP2 is being used at all, there is a suspicion
 that it is a leftover or alternative AT firmware.
 
+### Tampering with the main application (firmware 1012F)
+
+With knowledge of the source code it is easy to locate the corresponding byte code in the dump.
+For example, the [Mbed TLS](https://github.com/Mbed-TLS/mbedtls)
+[wrapper code](https://github.com/alibaba/AliOS-Things/blob/rel_3.0.0/middleware/linkkit/wrappers/os/HAL_TLS_mbedtls.c)
+
+```
+if (ca_crt != NULL) {
+   mbedtls_ssl_conf_authmode(&(pTlsData->conf), MBEDTLS_SSL_VERIFY_REQUIRED);
+```
+
+corresponds to the binary
+
+```
+0803fb86 ba f1 00 0f     cmp.w      r10,#0x0
+0803fb8a 2f d0           beq        LAB_0803fbec
+0803fb8c 02 21           movs       r1,#0x2		// 0x2 = MBEDTLS_SSL_VERIFY_REQUIRED
+0803fb8e 2e e0           b          LAB_0803fbee
+```
+
+So, if you change value `02 21` to `00 21` (0x0 = `MBEDTLS_SSL_VERIFY_NONE`) at offset `0x3fb8c`,
+the destination SSL certificate will not be checked anymore and you can man-in-the-middle or
+redirect the SSL traffic (MQTT, HTTP, ... to Alibaba cloud).
+
+When writing to the flash with RTLtool (`wf` cmd), make sure to always write
+full 4096 bytes aligned data blocks (flash `SECTOR_SIZE 0x1000`).
+
+:warning: Warning: Obviously writing to the flash memory is dangerous and may
+permanently damage your device. Be careful and keep children away.
+
 ## Misc
 
 - According to [Serial Number Naming Rule](https://ginlongsolis.freshdesk.com/support/solutions/articles/36000044079-serial-number-naming-rule)
