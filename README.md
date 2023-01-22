@@ -202,12 +202,44 @@ you can easily impersonate as the inverter and send MQTT data to the cloud.
 
 ### Analysis of the main application (firmware 1012F)
 
-The main application starts at `0x19000` with a 790112 bytes `TEXT` section for
-flash in place execution (XIP). It is followed at `0xd9e80` by a 7420 bytes `DATA`
-section for RAM execution. I will refer to this part as 'APP1'.
+The main application starts at `0x19000` with a `TEXT` segment for
+flash in place execution (XIP). It is followed by a `DATA`
+segment for RAM execution. I will refer to this part as 'APP1'.
 
 The complete APP1 in OTA package format (including checksums) starts
 at `0x19000` with length 797628 and MD5 checksum `0a88cb5556ab28ffba63a8d56e131d56`.
+With [decode-alios-ota-firmware.pl](decode-alios-ota-firmware.pl) one can
+view all details and validate the checksums:
+
+```
+$ ./decode-alios-ota-firmware.pl solis-s3-app-1012F_ota.bin
+# Segment .text
+  0x00000000:  Signature        = 0x3831393538373131 (OK)
+  0x00000008:  Code length      = 790112
+  0x0000000c:  Address          = 0x00000000 (FLASH XIP)
+  0x00000010:  Reserved         = 0xffffffffffffffffffffffffffffffff
+  0x00000020:  Code             = (byte code)
+
+# Segment .data
+  0x000c0e80:  Signature        = 0x3831393538373131 (OK)
+  0x000c0e88:  Code length      = 7420
+  0x000c0e8c:  Address          = 0x10005000 (RAM)
+  0x000c0e90:  Reserved         = 0xffffffffffffffffffffffffffffffff
+  0x000c0ea0:  Code             = (byte code)
+
+# Segments checksum
+  0x000c2b9c:  Checksum         = 0x25249404 (OK)
+
+# OTA trailer
+  0x000c2ba0:  Magic            = 0xefefefef (OK)
+  0x000c2ba4:  Size             = 797600 (OK)
+  0x000c2ba8:  MD5 checksum     = 0x85a615f88804cfb7784ffab81c27795b (OK)
+  0x000c2bb8:  Reserved         = 0xffffffff
+
+# End of data
+  0x000c2bbc:  Filesize         = 0xc2bbc = 797628 (OK)
+
+```
 
 Somewhat unexpectedly, the APP1 part is followed by a second app ('APP2') starting
 with `TEXT` at `0xdbbbc` (length 222276) and `DATA` at `0x112020` (length 3656).
