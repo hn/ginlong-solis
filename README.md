@@ -243,8 +243,9 @@ $ ./decode-alios-ota-firmware.pl solis-s3-app-1012F_ota.bin
 
 Somewhat unexpectedly, the APP1 part is followed by a second app ('APP2') starting
 with `TEXT` at `0xdbbbc` (length 222276) and `DATA` at `0x112020` (length 3656).
+This APP2 is identical to [AliOS ate.bin](https://github.com/alibaba/AliOS-Things/blob/rel_3.0.0/board/mk3080/ate.bin).
 It is currently not clear whether APP2 is being used at all, there is a suspicion
-that it is a leftover or alternative AT firmware.
+that it is an ATE firmware for [Automatic test equipment](https://en.wikipedia.org/wiki/Automatic_test_equipment).
 
 ### Tampering with the main application (firmware 1012F)
 
