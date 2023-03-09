@@ -29,6 +29,7 @@
 
 #define MODBUSPINRX       D5
 #define MODBUSPINTX       D6
+/* #define MODBUSPINENATX    D7 // enable only if your RS485 adapter requires a TX enable pin */
 #define MODBUSBAUD        9600
 #define MODBUSINVERTERID  1
 
@@ -158,6 +159,16 @@ char serialnumber[4 * SNHEXWORDS + 1];
 int serialvalid = 0;
 const solisreg *solis = solisUNKNOWN;
 
+#ifdef MODBUSPINENATX
+void ModbusPreTransmission() {
+  digitalWrite(MODBUSPINENATX, 1);
+}
+
+void ModbusPostTransmission() {
+  digitalWrite(MODBUSPINENATX, 0);
+}
+#endif
+
 void setup() {
   Serial.begin(115200);
 
@@ -167,6 +178,12 @@ void setup() {
 
   modbusSerial.begin(MODBUSBAUD);
   modbus.begin(MODBUSINVERTERID, modbusSerial);
+#ifdef MODBUSPINENATX
+  pinMode(MODBUSPINENATX, OUTPUT);
+  digitalWrite(MODBUSPINENATX, 0);
+  modbus.preTransmission(ModbusPreTransmission);
+  modbus.postTransmission(ModbusPostTransmission);
+#endif
 
   Serial.println("solis2influx started");
 }
