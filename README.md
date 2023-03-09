@@ -198,7 +198,7 @@ Partition 'Parameter3' contains the 'Product Key' (PK) and 'Device Secret' (DS)
 needed to connect to the [Alibaba IOT Platform](https://www.alibabacloud.com/help/en/iot-platform/latest/establish-a-connection-between-a-device-and-iot-platform).
 The serial number of the stick is used as 'Device Name' (DN).
 With the [Link SDK for Python](https://www.alibabacloud.com/help/en/iot-platform/latest/link-sdk-for-python)
-you can easily impersonate as the inverter and send MQTT data to the cloud.
+you can easily impersonate as the inverter and send MQTT data to the SolisCloud.
 
 ### Analysis of the main application (firmware 1012F)
 
@@ -243,9 +243,10 @@ $ ./decode-alios-ota-firmware.pl solis-s3-app-1012F_ota.bin
 
 Somewhat unexpectedly, the APP1 part is followed by a second app ('APP2') starting
 with `TEXT` at `0xdbbbc` (length 222276) and `DATA` at `0x112020` (length 3656).
-This APP2 is identical to [AliOS ate.bin](https://github.com/alibaba/AliOS-Things/blob/rel_3.0.0/board/mk3080/ate.bin).
-It is currently not clear whether APP2 is being used at all, there is a suspicion
-that it is an ATE firmware for [Automatic test equipment](https://en.wikipedia.org/wiki/Automatic_test_equipment).
+This APP2 is binary identical to [AliOS ate.bin](https://github.com/alibaba/AliOS-Things/blob/rel_3.0.0/board/mk3080/ate.bin).
+It is currently not clear whether it is being used at all, there is a suspicion
+that it is an ATE firmware for [Automatic test equipment](https://en.wikipedia.org/wiki/Automatic_test_equipment)
+or to set [eFuses](https://en.wikipedia.org/wiki/EFuse)/RDP.
 
 ### Tampering with the main application (firmware 1012F)
 
