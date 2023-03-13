@@ -1,0 +1,131 @@
+#!/usr/bin/perl
+#
+# solis-inv-esphome.yaml -- Ginlong Solis Inverter ESPhome definition file
+#
+# ! ALPHA - INCOMPLETE AND UNTESTED !
+#
+# (C) 2023 Hajo Noerenberg
+#
+# http://www.noerenberg.de/
+# https://github.com/hn/ginlong-solis
+#
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3.0 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program. If not, see <http://www.gnu.org/licenses/gpl-3.0.txt>.
+#
+
+esphome:
+  name: solis-inv
+
+libretuya:
+  board: generic-rtl8710bn-2mb-788k
+  framework:
+    version: latest
+
+logger:
+  hardware_uart: SERIAL2
+
+api:
+
+ota:
+
+wifi:
+  ssid: "MY-HOME-WIFI"
+  password: "v3rys3cr3t"
+  ap:
+    ssid: "solis"
+    password: "s3cr3t"
+
+captive_portal:
+
+#time:
+#  - platform: sntp
+#    id: sntp_time
+#    timezone: "CET-1CEST,M3.5.0,M10.5.0/3"
+#    servers: "de.pool.ntp.org"
+
+button:
+  - platform: factory_reset
+    name: Restart with Factory Default Settings
+    id: reset_all
+
+binary_sensor:
+  - platform: gpio
+    pin: PA08
+    name: "Reset button"
+    on_click:
+      min_length: 5s
+      max_length: 300s
+      then:
+        - button.press: reset_all
+#        - switch.toggle: LED_orange_COM
+
+switch:
+  - platform: gpio
+    restore_mode: ALWAYS_OFF
+    pin:
+      number: PA12
+      mode: output
+    id: LED_orange_COM
+  - platform: gpio
+    restore_mode: ALWAYS_OFF
+    pin:
+      number: PA05
+      mode: output
+    id: LED_green_NET
+
+interval:
+  - interval: 1s
+    then:
+      if:
+        condition:
+          wifi.connected:
+        then:
+          - switch.turn_on: LED_green_NET
+        else:
+          - switch.turn_off: LED_green_NET
+  - interval: 1s
+    then:
+      - switch.toggle: LED_orange_COM
+
+uart:
+  id: uart_0
+  tx_pin: PA23
+  rx_pin: PA18
+  baud_rate: 9600
+
+modbus:
+  flow_control_pin: PA19
+  send_wait_time: 200ms
+  id: mod_bus_solis
+
+modbus_controller:
+  - id: solis
+    address: 0x1
+    modbus_id: mod_bus_solis
+    command_throttle: 200ms
+    setup_priority: -10
+
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: solis
+    id: dc_voltage_1
+    name: DC voltage 1
+    address: 3022
+    offset: 1
+    unit_of_measurement: "V"
+    register_type: read
+    value_type: U_WORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.1
+
