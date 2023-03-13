@@ -59,7 +59,9 @@ button:
 
 binary_sensor:
   - platform: gpio
-    pin: PA08
+    pin:
+      number: PA08
+      inverted: true
     name: "Reset button"
     on_click:
       min_length: 5s
