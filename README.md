@@ -281,7 +281,7 @@ permanently damage your device. Be careful and keep children away.
 ### Replacing the main application
 
 Thanks to the fine folks at [LibreTuya](https://github.com/kuba2k2/libretuya), arduino-compatible cores
-for RTL8710B chips are available. And there is even a corresponding [ESPhome](https://docs.libretuya.ml/docs/projects/esphome/) port.
+for RTL8710B chips are available. And there is even a corresponding [ESPhome port](https://docs.libretuya.ml/docs/projects/esphome/).
 
 [solis-inv-esphome.yaml](solis-inv-esphome.yaml) is an alpha quality
 ESPhome YAML file to start some tests.
@@ -295,9 +295,8 @@ $ ./rtltool.py -p /dev/ttyUSB0 wf 0xb000 image_0x00B000.ota1.bin
 LibreTuya also comes with [ltchiptool](https://github.com/libretuya/ltchiptool)
 which probably is a better option than `rtltool.py`.
 
-:warning: Warning: Obviously writing to the flash memory is dangerous and may
-permanently damage your device. In addition, LibreTuya is work in progress.
-At the time of writing, you at least need to fix [UART problems](https://github.com/kuba2k2/libretuya/issues/91).
+:warning: Warning: This is work in progress! Obviously writing to the flash memory is dangerous and may
+permanently damage your device.
 
 ## Misc
 
