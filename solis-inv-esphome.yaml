@@ -5,6 +5,8 @@
 #
 # (C) 2023 Hajo Noerenberg
 #
+# Usage: https://docs.libretuya.ml/docs/projects/esphome/#build-upload
+#
 # http://www.noerenberg.de/
 # https://github.com/hn/ginlong-solis
 #
@@ -24,6 +26,8 @@
 
 esphome:
   name: solis-inv
+  friendly_name: Ginlong Solis Inverter
+  name_add_mac_suffix: true
 
 libretuya:
   board: generic-rtl8710bn-2mb-788k
@@ -52,38 +56,6 @@ captive_portal:
 #    timezone: "CET-1CEST,M3.5.0,M10.5.0/3"
 #    servers: "de.pool.ntp.org"
 
-button:
-  - platform: factory_reset
-    name: Restart with Factory Default Settings
-    id: reset_all
-
-binary_sensor:
-  - platform: gpio
-    pin:
-      number: PA08
-      inverted: true
-    name: "Reset button"
-    on_click:
-      min_length: 5s
-      max_length: 300s
-      then:
-        - button.press: reset_all
-#        - switch.toggle: LED_orange_COM
-
-switch:
-  - platform: gpio
-    restore_mode: ALWAYS_OFF
-    pin:
-      number: PA12
-      mode: output
-    id: LED_orange_COM
-  - platform: gpio
-    restore_mode: ALWAYS_OFF
-    pin:
-      number: PA05
-      mode: output
-    id: LED_green_NET
-
 interval:
   - interval: 1s
     then:
@@ -91,12 +63,12 @@ interval:
         condition:
           wifi.connected:
         then:
-          - switch.turn_on: LED_green_NET
+          - switch.turn_on: led_green_net
         else:
-          - switch.turn_off: LED_green_NET
+          - switch.turn_off: led_green_net
   - interval: 1s
     then:
-      - switch.toggle: LED_orange_COM
+      - switch.toggle: led_orange_com
 
 uart:
   id: uart_0
@@ -115,18 +87,201 @@ modbus_controller:
     modbus_id: mod_bus_solis
     command_throttle: 200ms
     setup_priority: -10
+#    update_interval: 10s
+
+button:
+  - platform: factory_reset
+    name: Restart with factory default settings
+    id: reset_all
+
+switch:
+  - platform: gpio
+    restore_mode: ALWAYS_OFF
+    pin:
+      number: PA12
+      mode: output
+    id: led_orange_com
+  - platform: gpio
+    restore_mode: ALWAYS_OFF
+    pin:
+      number: PA05
+      mode: output
+    id: led_green_net
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: PA08
+      inverted: true
+    id: button_reset
+    on_click:
+      min_length: 5s
+      max_length: 300s
+      then:
+        - button.press: reset_all
+  - platform: modbus_controller
+    modbus_controller_id: solis
+    name: Working status Normal
+    register_type: read
+    # = 3072 - 1
+    address: 3071
+    bitmask: 0x01
+  - platform: modbus_controller
+    modbus_controller_id: solis
+    name: Working status Initializing
+    register_type: read
+    # = 3072 - 1
+    address: 3071
+    bitmask: 0x02
+  - platform: modbus_controller
+    modbus_controller_id: solis
+    name: Working status Grid off
+    register_type: read
+    # = 3072 - 1
+    address: 3071
+    bitmask: 0x04
+  - platform: modbus_controller
+    modbus_controller_id: solis
+    name: Working status Fault to stop
+    register_type: read
+    # = 3072 - 1
+    address: 3071
+    bitmask: 0x08
+  - platform: modbus_controller
+    modbus_controller_id: solis
+    name: Working status Standby
+    register_type: read
+    # = 3072 - 1
+    address: 3071
+    bitmask: 0x10
 
 sensor:
   - platform: modbus_controller
     modbus_controller_id: solis
-    id: dc_voltage_1
-    name: DC voltage 1
-    address: 3022
-    offset: 1
-    unit_of_measurement: "V"
+    name: Active Power
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
     register_type: read
+    # = 3005 - 1
+    address: 3004
+    value_type: U_DWORD
+  - platform: modbus_controller
+    modbus_controller_id: solis
+    name: Total DC output power
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
+    register_type: read
+    # = 3007 - 1
+    address: 3006
+    value_type: U_DWORD
+  - platform: modbus_controller
+    modbus_controller_id: solis
+    name: Total energy
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    # = 3009 - 1
+    address: 3008
+    value_type: U_DWORD
+  - platform: modbus_controller
+    modbus_controller_id: solis
+    name: Energy this month
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    # = 3011 - 1
+    address: 3010
+    value_type: U_DWORD
+  - platform: modbus_controller
+    modbus_controller_id: solis
+    name: Energy last month
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    # = 3013 - 1
+    address: 3012
+    value_type: U_DWORD
+  - platform: modbus_controller
+    modbus_controller_id: solis
+    name: Energy today
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    # = 3015 - 1
+    address: 3014
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: solis
+    name: Energy last day
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    # = 3016 - 1
+    address: 3015
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: solis
+    name: DC voltage 1
+    device_class: voltage
+    state_class: measurement
+    unit_of_measurement: V
+    register_type: read
+    # = 3022 - 1
+    address: 3021
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: solis
+    name: DC current 1
+    device_class: current
+    state_class: measurement
+    unit_of_measurement: A
+    register_type: read
+    # = 3023 - 1
+    address: 3022
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: solis
+    name: Inverter temperature
+    device_class: temperature
+    state_class: measurement
+    unit_of_measurement: C
+    register_type: read
+    # = 3042 - 1
+    address: 3041
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: solis
+    name: Grid frequency
+    device_class: frequency
+    state_class: measurement
+    unit_of_measurement: Hz
+    register_type: read
+    # = 3043 - 1
+    address: 3042
     value_type: U_WORD
     accuracy_decimals: 2
     filters:
-      - multiply: 0.1
+      - multiply: 0.01
 
