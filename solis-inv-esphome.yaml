@@ -282,6 +282,30 @@ sensor:
       - multiply: 0.1
   - platform: modbus_controller
     modbus_controller_id: solis
+    name: DC voltage 2
+    device_class: voltage
+    state_class: measurement
+    unit_of_measurement: V
+    register_type: read
+    address: 3023 # = 3024 - 1
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: solis
+    name: DC current 2
+    device_class: current
+    state_class: measurement
+    unit_of_measurement: A
+    register_type: read
+    address: 3024 # = 3025 - 1
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: solis
     name: Inverter temperature
     device_class: temperature
     state_class: measurement
@@ -322,6 +346,7 @@ text_sensor:
     register_type: read
     address: 3000 # = 3001 - 1
     response_size: 2
+    force_new_range: true # workaround for bug concatening model, dsp and lcd
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:chip
@@ -338,6 +363,25 @@ text_sensor:
     skip_updates: 10
   - platform: modbus_controller
     modbus_controller_id: solis
+    name: Country standard code
+    register_type: read
+    address: 3053 # = 3054 - 1
+    response_size: 2
+    raw_encode: HEXBYTES
+    entity_category: diagnostic
+    icon: mdi:earth
+    skip_updates: 10
+    lambda: |-
+      uint16_t value = modbus_controller::word_from_hex_str(x, 0);
+      switch (value) {
+        /* Solis Spec Appendix 3 */
+        case 0x003: return std::string("VDE0126");
+        case 0x009: return std::string("MEX-CFE");
+        case 0x00B: return std::string("VDE4105");
+      }
+      return x;
+  - platform: modbus_controller
+    modbus_controller_id: solis
     name: Inverter SN
     register_type: read
     address: 3060 # = 3061 - 1
@@ -346,4 +390,13 @@ text_sensor:
     entity_category: diagnostic
     icon: mdi:numeric
     skip_updates: 10
+    lambda: |-
+      char serialnumber[4 * 4 + 1];
+      for (int j = 0; j < 4; j++) {
+        unsigned int r = esphome::modbus_controller::word_from_hex_str(x, j * 2);;
+        sprintf(serialnumber + (j * 4), "%02x%02x",
+          (r & 0x0F) << 4 | (r & 0xF0) >> 4, (r & 0x0F00) >> 4 | (r & 0xF000) >> 12);
+      }
+      serialnumber[4 * 4] = 0;
+      return std::string(serialnumber);
 
