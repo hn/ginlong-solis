@@ -296,7 +296,7 @@ In principle, it can be adapted to inverters of the 'ESINV' type by modifying th
 Setup the environment and compile the ESPhome firmware as follows:
 
 ```
-$ sudo apt-get install python3-pip python3-voluptuous python3-yaml python3-serial python3-click python3-xmodem python3-pyaes python3-colorama python3-zipp
+$ sudo apt-get install python3-pip python3-voluptuous python3-yaml python3-tzlocal python3-serial python3-click python3-xmodem python3-pyaes python3-colorama python3-zipp
 $ pip install -U platformio	# see PlatformIO docs
 $ platformio platform install https://github.com/kuba2k2/libretuya	# see LibreTuya docs
 $ pip install ltchiptool
