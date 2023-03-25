@@ -29,14 +29,23 @@ esphome:
   name: solis-inv
   friendly_name: Ginlong Solis Inverter
   name_add_mac_suffix: true
+  platformio_options:
+    board_build.mcu: rtl8710bn
+    board_build.f_cpu: 125000000L
 
 libretuya:
-  board: generic-rtl8710bn-2mb-788k
+  board: generic-rtl8710bx-4mb-980k
   framework:
     version: latest
 
 logger:
   hardware_uart: SERIAL2
+
+#time:
+#  - platform: sntp
+#    id: sntp_time
+#    timezone: "CET-1CEST,M3.5.0,M10.5.0/3"
+#    servers: "de.pool.ntp.org"
 
 api:
 
@@ -51,12 +60,6 @@ wifi:
 
 captive_portal:
 
-#time:
-#  - platform: sntp
-#    id: sntp_time
-#    timezone: "CET-1CEST,M3.5.0,M10.5.0/3"
-#    servers: "de.pool.ntp.org"
-
 interval:
   - interval: 1s
     then:
@@ -64,12 +67,25 @@ interval:
         condition:
           wifi.connected:
         then:
-          - switch.turn_on: led_green_net
+          if:
+            condition:
+              switch.is_off: led_green_net
+            then:
+              - switch.turn_on: led_green_net
         else:
-          - switch.turn_off: led_green_net
-  - interval: 1s
+          if:
+            condition:
+              switch.is_on: led_green_net
+            then:
+              - switch.turn_off: led_green_net
+
+script:
+  - mode: restart
+    id: blink_led_com
     then:
-      - switch.toggle: led_orange_com
+      - switch.turn_on: led_orange_com
+      - delay: 500ms
+      - switch.turn_off: led_orange_com
 
 uart:
   id: uart_0
@@ -79,14 +95,14 @@ uart:
 
 modbus:
   flow_control_pin: PA19
-  send_wait_time: 200ms
-  id: mod_bus_solis
+  send_wait_time: 300ms
+  id: modbus_hw
 
 modbus_controller:
-  - id: solis
+  - id: modbus_master
     address: 0x1
-    modbus_id: mod_bus_solis
-    command_throttle: 200ms
+    modbus_id: modbus_hw
+    command_throttle: 500ms
     setup_priority: -10
 #    update_interval: 10s
 
@@ -121,58 +137,58 @@ binary_sensor:
       then:
         - button.press: reset_all
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Working status Normal
     register_type: read
     address: 3071 # = 3072 - 1
     bitmask: 0x0001
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Working status Initializing
     register_type: read
     address: 3071 # = 3072 - 1
     bitmask: 0x0002
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Working status Grid off
     device_class: problem
     register_type: read
     address: 3071 # = 3072 - 1
     bitmask: 0x0004
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Working status Fault to stop
     device_class: problem
     register_type: read
     address: 3071 # = 3072 - 1
     bitmask: 0x0008
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Working status Standby
     register_type: read
     address: 3071 # = 3072 - 1
     bitmask: 0x0010
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Working status Derating
     register_type: read
     address: 3071 # = 3072 - 1
     bitmask: 0x0020
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Working status Limitating
     register_type: read
     address: 3071 # = 3072 - 1
     bitmask: 0x0040
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Working status Grid surge
     device_class: problem
     register_type: read
     address: 3071 # = 3072 - 1
     bitmask: 0x0100
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Working status Fan fault
     device_class: problem
     register_type: read
@@ -183,7 +199,7 @@ sensor:
   - platform: wifi_signal
     name: "WiFi Signal"
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Active Power
     device_class: power
     state_class: measurement
@@ -191,8 +207,11 @@ sensor:
     register_type: read
     address: 3004 # = 3005 - 1
     value_type: U_DWORD
+    on_value:
+      then:
+        - script.execute: blink_led_com
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Total DC output power
     device_class: power
     state_class: measurement
@@ -201,7 +220,7 @@ sensor:
     address: 3006 # = 3007 - 1
     value_type: U_DWORD
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Total energy
     device_class: energy
     state_class: total_increasing
@@ -209,9 +228,10 @@ sensor:
     register_type: read
     address: 3008 # = 3009 - 1
     value_type: U_DWORD
+    force_new_range: true # workaround to seperate reg 3006: "skip_updates applies for all components in the same range"
     skip_updates: 10
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Energy this month
     device_class: energy
     state_class: total_increasing
@@ -221,7 +241,7 @@ sensor:
     value_type: U_DWORD
     skip_updates: 10
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Energy last month
     device_class: energy
     state_class: total_increasing
@@ -231,7 +251,7 @@ sensor:
     value_type: U_DWORD
     skip_updates: 10
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Energy today
     device_class: energy
     state_class: total_increasing
@@ -244,7 +264,7 @@ sensor:
       - multiply: 0.1
     skip_updates: 10
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Energy last day
     device_class: energy
     state_class: total_increasing
@@ -257,7 +277,7 @@ sensor:
       - multiply: 0.1
     skip_updates: 10
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: DC voltage 1
     device_class: voltage
     state_class: measurement
@@ -269,7 +289,7 @@ sensor:
     filters:
       - multiply: 0.1
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: DC current 1
     device_class: current
     state_class: measurement
@@ -281,7 +301,7 @@ sensor:
     filters:
       - multiply: 0.1
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: DC voltage 2
     device_class: voltage
     state_class: measurement
@@ -293,7 +313,7 @@ sensor:
     filters:
       - multiply: 0.1
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: DC current 2
     device_class: current
     state_class: measurement
@@ -305,7 +325,7 @@ sensor:
     filters:
       - multiply: 0.1
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Inverter temperature
     device_class: temperature
     state_class: measurement
@@ -317,7 +337,7 @@ sensor:
     filters:
       - multiply: 0.1
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Grid frequency
     device_class: frequency
     state_class: measurement
@@ -331,7 +351,7 @@ sensor:
 
 text_sensor:
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Product model
     register_type: read
     address: 2999 # = 3000 - 1
@@ -341,7 +361,7 @@ text_sensor:
     icon: mdi:factory
     skip_updates: 10
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: DSP software version
     register_type: read
     address: 3000 # = 3001 - 1
@@ -352,7 +372,7 @@ text_sensor:
     icon: mdi:chip
     skip_updates: 10
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: LCD software version
     register_type: read
     address: 3001 # = 3002 - 1
@@ -362,7 +382,7 @@ text_sensor:
     icon: mdi:chip
     skip_updates: 10
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Country standard code
     register_type: read
     address: 3053 # = 3054 - 1
@@ -381,7 +401,7 @@ text_sensor:
       }
       return x;
   - platform: modbus_controller
-    modbus_controller_id: solis
+    modbus_controller_id: modbus_master
     name: Inverter SN
     register_type: read
     address: 3060 # = 3061 - 1

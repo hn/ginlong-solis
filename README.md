@@ -73,6 +73,9 @@ The stick hardware is based on [MXCHIP's](https://en.mxchip.com/) [EMW3080-E MCU
 (ARM Cortex-M4F, 2.4G Hz IEEE 802.11 b/g/n WiFi, Suffix `-E` denotes `IPEX antenna, MX1290 processor`).
 Datasheet: [V2.2](https://m.eleparts.co.kr/data/_gextends/good-pdf/202103/good-pdf-10094810-2.pdf).
 
+:raised_hand: Contrary to all available datasheets, the EMW3080-E (at least the one in my Solis S3 stick)
+does *not* have 2MB flash installed, but an [8MB flash module](https://github.com/kuba2k2/libretuya/issues/91#issuecomment-1480153212).
+
 The EMW3080 is some kind of relabeled ([call it the same family](https://github.com/alibaba/AliOS-Things/blob/rel_3.0.0/board/mk3080/aos.mk))
 [RTL8710BN](https://www.realtek.com/en/products/communications-network-ics/item/rtl8710bn) MCU (Ameba-Z series).
 One can find more info about the EMW3080 at
@@ -153,15 +156,17 @@ Open xModem Transfer on Log UART...
 ```
 
 When the device is in this mode, one can download the firmware using
-[RTLtool](https://esp8266.ru/forum/threads/rtl871xbx-tools-ameba-z.2673/) (depends on Python2):
+[RTLtool](https://esp8266.ru/forum/threads/rtl871xbx-tools-ameba-z.2673/) (depends on Python2,
+thankfully there is also a [Python3 compatible version](https://github.com/libretuya/ltchiptool/tree/master/ltchiptool/soc/ambz/util)
+available):
 
 ```
 $ ./rtltool.py -p /dev/ttyUSB0 gf
 Connecting...
 Flash Status value: 0x40
-$ ./rtltool.py -p /dev/ttyUSB0 rf 0x8000000 0x200000 dump-0x8000000-0x200000.bin
+$ ./rtltool.py -p /dev/ttyUSB0 rf 0x8000000 0x800000 dump-0x8000000-0x800000.bin
 Connecting...
-Read Flash data from 0x08000000 to 0x08200000 in file: dump-0x8000000-0x200000.bin ...
+Read Flash data from 0x08000000 to 0x08800000 in file: dump-0x8000000-0x800000.bin ...
 Done!
 ```
 
@@ -188,9 +193,6 @@ Parameter55     0x2b8000      0x1000
 Parameter33     0x7fe000      0x1000        // Backup of Parameter3 ?
 Offline         0x300000      0x4fe000      // 0x1000 zeros + some noise
 ```
-
-It is important to note that with a flash size of 2MB, all start addresses above `0x200000` are outside the flash.
-The OTA partition is thus too large and the ParameterX partitions are not in the flash at all, possibly this is SRAM or OTP.
 
 ### Playing with the Alibaba IOT Platform
 
@@ -283,19 +285,56 @@ permanently damage your device. Be careful and keep children away.
 Thanks to the fine folks at [LibreTuya](https://github.com/kuba2k2/libretuya), arduino-compatible cores
 for RTL8710B chips are available. And there is even a corresponding [ESPhome port](https://docs.libretuya.ml/docs/projects/esphome/).
 
-[solis-inv-esphome.yaml](solis-inv-esphome.yaml) is an alpha quality
-ESPhome YAML file to start some tests.
+![Solis ESPhome sample screen](solis-esphome.png "Solis ESPhome Homeassistant")
 
-Flashing the resulting image (replacing 2ndboot and old main app altogether) is as simple as
+With [solis-inv-esphome.yaml](solis-inv-esphome.yaml) you can read out all
+relevant status and statistics data from your Solis inverter and push it to Home Assistant.
+
+:raised_hand: This YAML file is only compatible with [Solis 'INV' type inverters](#solis-modbus-register-map-and-rs-485-documentation).
+In principle, it can be adapted to inverters of the 'ESINV' type by modifying the ModBus register map.
+
+Setup the environment and compile the ESPhome firmware as follows:
 
 ```
-$ ./rtltool.py -p /dev/ttyUSB0 wf 0xb000 image_0x00B000.ota1.bin
+$ sudo apt-get install python3-pip python3-voluptuous python3-yaml python3-serial python3-click python3-xmodem python3-pyaes python3-colorama python3-zipp
+$ pip install -U platformio	# see PlatformIO docs
+$ platformio platform install https://github.com/kuba2k2/libretuya	# see LibreTuya docs
+$ pip install ltchiptool
+$
+$ git clone https://github.com/kuba2k2/libretuya-esphome
+$ cd libretuya-esphome
+$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/solis-inv-esphome.yaml
+$ echo -e "wifi_ssid: foo\nwifi_password: foo\nwifi_ap_ssid: foo\nwifi_ap_password: foo" > secrets.yaml	# edit as needed
+$
+$ python3 -m esphome compile solis-inv-esphome.yaml
 ```
 
-LibreTuya also comes with [ltchiptool](https://github.com/libretuya/ltchiptool)
-which probably is a better option than `rtltool.py`.
+Set the MCU to `UART boot mode` (pull TX pin low during boot) and backup the stock firmware
+(you have to use rtltool since ltchiptool does not allow to read more than 2MB for this MCU type):
 
-:warning: Warning: This is work in progress! Obviously writing to the flash memory is dangerous and may
+```
+$ ./rtltool.py -p /dev/ttyUSB0 rf 0x8000000 0x800000 solis-s3-firmware-1012f.bin
+```
+
+Flashing the ESPhome image (replacing 2ndboot and old main app altogether) is as simple as
+
+```
+python -m esphome upload solis-inv-esphome.yaml --device /dev/ttyUSB0
+```
+
+For subsequent uploads you can disconnect the serial port and OTA-upload the firmware:
+
+```
+python -m esphome upload solis-inv-esphome.yaml --device <ipaddress>
+```
+
+:bulb: Matching the EMW3080 datasheet, one should actually use the `generic-rtl8710bn-2mb-788k` board profile
+for LibreTuya. But since the Solis WiFi stick has a special 8MB version of the MCU with an OTA address of 0x100000, the
+not exactly matching profile `generic-rtl8710bx-4mb-980k` is used here, manually [setting the MCU type and frequency in
+the PlatformIO options to the correct value](https://github.com/kuba2k2/libretuya/issues/91#issuecomment-1476792864).
+
+:warning: Warning: LibreTuya is work in progress, e.g. WiFi AP mode and
+other things are under development. Obviously writing to the flash memory is dangerous and may
 permanently damage your device.
 
 ## Misc
