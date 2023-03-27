@@ -296,13 +296,13 @@ In principle, it can be adapted to inverters of the 'ESINV' type by modifying th
 Setup the environment and compile the ESPhome firmware as follows:
 
 ```
-$ sudo apt-get install python3-pip python3-voluptuous python3-yaml python3-tzlocal python3-serial python3-click python3-xmodem python3-pyaes python3-colorama python3-zipp
-$ pip install -U platformio	# see PlatformIO docs
-$ platformio platform install https://github.com/kuba2k2/libretuya	# see LibreTuya docs
-$ pip install ltchiptool
+$ sudo apt-get install python3-pip
+$ pip3 install -U platformio # see PlatformIO docs
+$ platformio platform install https://github.com/kuba2k2/libretuya # see LibreTuya docs
 $
 $ git clone https://github.com/kuba2k2/libretuya-esphome
 $ cd libretuya-esphome
+$ pip3 install -r requirements.txt
 $ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/solis-inv-esphome.yaml	# edit timezone as needed
 $ echo -e "wifi_ssid: foo\nwifi_password: foo\nwifi_ap_ssid: foo\nwifi_ap_password: foo" > secrets.yaml	# edit as needed
 $
