@@ -319,13 +319,15 @@ $ ./rtltool.py -p /dev/ttyUSB0 rf 0x8000000 0x800000 solis-s3-firmware-1012f.bin
 Flashing the ESPhome image (replacing 2ndboot and old main app altogether) is as simple as
 
 ```
-python -m esphome upload solis-inv-esphome.yaml --device /dev/ttyUSB0
+python3 -m esphome upload solis-inv-esphome.yaml --device /dev/ttyUSB0
 ```
 
-For subsequent uploads you can disconnect the serial port and OTA-upload the firmware:
+After flashing, you can reconnect the S3 WiFi stick to the inverter and
+the integration will magically appear in Home Assistant.
+For subsequent uploads you can simply OTA-upload the firmware:
 
 ```
-python -m esphome upload solis-inv-esphome.yaml --device <ipaddress>
+python3 -m esphome upload solis-inv-esphome.yaml --device <ipaddress>
 ```
 
 :bulb: Matching the EMW3080 datasheet, one should actually use the `generic-rtl8710bn-2mb-788k` board profile
