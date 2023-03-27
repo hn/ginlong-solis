@@ -3,6 +3,7 @@
 #
 # ! This file only works with Solis 'INV' type inverters !
 # ! This file only works with the Solis S3 WiFi stick (Gen 3, EMW3080 chip) !
+# ! Make sure to correctly set timezone within 'time' section below !
 #
 # (C) 2023 Hajo Noerenberg
 #
@@ -41,11 +42,10 @@ libretuya:
 logger:
   hardware_uart: SERIAL2
 
-#time:
-#  - platform: sntp
-#    id: sntp_time
-#    timezone: "CET-1CEST,M3.5.0,M10.5.0/3"
-#    servers: "de.pool.ntp.org"
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: "CET-1CEST,M3.5.0,M10.5.0/3"
 
 api:
 
@@ -419,4 +419,43 @@ text_sensor:
       }
       serialnumber[4 * 4] = 0;
       return std::string(serialnumber);
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    id: inverter_rtc
+    register_type: holding
+    address: 2999 # = 3000 - 1
+    register_count: 6
+    raw_encode: HEXBYTES
+    entity_category: diagnostic
+    icon: mdi:clock-digital
+    skip_updates: 10
+    lambda: |-
+      time_t i_t;
+      struct tm i_tm = { 0 };
+      i_tm.tm_year  = modbus_controller::word_from_hex_str(x, 0*2) + 2000 - 1900;
+      i_tm.tm_mon   = modbus_controller::word_from_hex_str(x, 1*2) - 1;
+      i_tm.tm_mday  = modbus_controller::word_from_hex_str(x, 2*2);
+      i_tm.tm_hour  = modbus_controller::word_from_hex_str(x, 3*2);
+      i_tm.tm_min   = modbus_controller::word_from_hex_str(x, 4*2);
+      i_tm.tm_sec   = modbus_controller::word_from_hex_str(x, 5*2);
+      i_tm.tm_isdst = -1;
+      i_t = mktime(&i_tm);
+      ESP_LOGI("SyncInverterRTC", "Inverter RTC is %02d:%02d:%02d %04d-%02d-%02d",
+        i_tm.tm_hour, i_tm.tm_min, i_tm.tm_sec, i_tm.tm_year + 1900, i_tm.tm_mon + 1, i_tm.tm_mday);
+      auto s_espt = id(sntp_time).now();
+      if (s_espt.is_valid()) {
+        double deviation = difftime(i_t, s_espt.timestamp);
+        if (abs(deviation) > 42) {
+          std::vector<uint16_t> rtc_data =
+            {s_espt.year % 100, s_espt.month, s_espt.day_of_month, s_espt.hour, s_espt.minute, s_espt.second};
+          modbus_controller::ModbusCommandItem set_rtc_command =
+            modbus_controller::ModbusCommandItem::create_write_multiple_command(modbus_master, item->start_address, item->register_count, rtc_data);
+          modbus_master->queue_command(set_rtc_command);
+          ESP_LOGI("SyncInverterRTC", "Inverter RTC deviation=%.fs, updated RTC to %02d:%02d:%02d %04d-%02d-%02d",
+            deviation, s_espt.hour, s_espt.minute, s_espt.second, s_espt.year, s_espt.month, s_espt.day_of_month);
+        }
+      } else {
+        ESP_LOGI("SyncInverterRTC", "Inverter RTC not checked because NTP is not yet synchronised");
+      }
+      return {};
 

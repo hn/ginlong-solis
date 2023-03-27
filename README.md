@@ -303,7 +303,7 @@ $ pip install ltchiptool
 $
 $ git clone https://github.com/kuba2k2/libretuya-esphome
 $ cd libretuya-esphome
-$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/solis-inv-esphome.yaml
+$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/solis-inv-esphome.yaml	# edit timezone as needed
 $ echo -e "wifi_ssid: foo\nwifi_password: foo\nwifi_ap_ssid: foo\nwifi_ap_password: foo" > secrets.yaml	# edit as needed
 $
 $ python3 -m esphome compile solis-inv-esphome.yaml
