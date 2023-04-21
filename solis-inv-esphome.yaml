@@ -102,7 +102,6 @@ modbus_controller:
   - id: modbus_master
     address: 0x1
     modbus_id: modbus_hw
-    command_throttle: 500ms
     setup_priority: -10
 #    update_interval: 10s
 
