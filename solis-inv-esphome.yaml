@@ -7,7 +7,7 @@
 #
 # (C) 2023 Hajo Noerenberg
 #
-# Usage: https://docs.libretuya.ml/docs/projects/esphome/#build-upload
+# Usage: https://docs.libretiny.ml/docs/projects/esphome/#build-upload
 #
 # http://www.noerenberg.de/
 # https://github.com/hn/ginlong-solis
@@ -34,7 +34,7 @@ esphome:
     board_build.mcu: rtl8710bn
     board_build.f_cpu: 125000000L
 
-libretuya:
+libretiny:
   board: generic-rtl8710bx-4mb-980k
   framework:
     version: latest

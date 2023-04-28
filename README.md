@@ -74,7 +74,7 @@ The stick hardware is based on [MXCHIP's](https://en.mxchip.com/) [EMW3080-E MCU
 Datasheet: [V2.2](https://m.eleparts.co.kr/data/_gextends/good-pdf/202103/good-pdf-10094810-2.pdf).
 
 :raised_hand: Contrary to all available datasheets, the EMW3080-E (at least the one in my Solis S3 stick)
-does *not* have 2MB flash installed, but an [8MB flash module](https://github.com/kuba2k2/libretuya/issues/91#issuecomment-1480153212).
+does *not* have 2MB flash installed, but an [8MB flash module](https://github.com/kuba2k2/libretiny/issues/91#issuecomment-1480153212).
 
 The EMW3080 is some kind of relabeled ([call it the same family](https://github.com/alibaba/AliOS-Things/blob/rel_3.0.0/board/mk3080/aos.mk))
 [RTL8710BN](https://www.realtek.com/en/products/communications-network-ics/item/rtl8710bn) MCU (Ameba-Z series).
@@ -157,7 +157,7 @@ Open xModem Transfer on Log UART...
 
 When the device is in this mode, one can download the firmware using
 [RTLtool](https://esp8266.ru/forum/threads/rtl871xbx-tools-ameba-z.2673/) (depends on Python2,
-thankfully there is also a [Python3 compatible version](https://github.com/libretuya/ltchiptool/tree/master/ltchiptool/soc/ambz/util)
+thankfully there is also a [Python3 compatible version](https://github.com/libretiny/ltchiptool/tree/master/ltchiptool/soc/ambz/util)
 available):
 
 ```
@@ -282,8 +282,8 @@ permanently damage your device. Be careful and keep children away.
 
 ### Replacing the main application
 
-Thanks to the fine folks at [LibreTuya](https://github.com/kuba2k2/libretuya), arduino-compatible cores
-for RTL8710B chips are available. And there is even a corresponding [ESPhome port](https://docs.libretuya.ml/docs/projects/esphome/).
+Thanks to the fine folks at [LibreTiny](https://github.com/kuba2k2/libretiny), arduino-compatible cores
+for RTL8710B chips are available. And there is even a corresponding [ESPhome port](https://docs.libretiny.ml/docs/projects/esphome/).
 
 ![Solis ESPhome sample screen](solis-esphome.png "Solis ESPhome Homeassistant")
 
@@ -298,10 +298,10 @@ Setup the environment and compile the ESPhome firmware as follows:
 ```
 $ sudo apt-get install python3-pip
 $ pip3 install -U platformio # see PlatformIO docs
-$ platformio platform install https://github.com/kuba2k2/libretuya # see LibreTuya docs
+$ platformio platform install https://github.com/kuba2k2/libretiny # see LibreTiny docs
 $
-$ git clone https://github.com/kuba2k2/libretuya-esphome
-$ cd libretuya-esphome
+$ git clone https://github.com/kuba2k2/libretiny-esphome
+$ cd libretiny-esphome
 $ pip3 install -r requirements.txt
 $ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/solis-inv-esphome.yaml	# edit timezone as needed
 $ echo -e "wifi_ssid: foo\nwifi_password: foo\nwifi_ap_ssid: foo\nwifi_ap_password: foo" > secrets.yaml	# edit as needed
@@ -323,7 +323,7 @@ python3 -m esphome upload solis-inv-esphome.yaml --device /dev/ttyUSB0
 ```
 
 After flashing, you can reconnect the S3 WiFi stick to the inverter and
-the integration will magically appear in Home Assistant.
+the status data will magically (add integration -> ESPhome -> host=<ipaddress of WiFi stick>) appear in Home Assistant.
 For subsequent uploads you can simply OTA-upload the firmware:
 
 ```
@@ -331,11 +331,11 @@ python3 -m esphome upload solis-inv-esphome.yaml --device <ipaddress>
 ```
 
 :bulb: Matching the EMW3080 datasheet, one should actually use the `generic-rtl8710bn-2mb-788k` board profile
-for LibreTuya. But since the Solis WiFi stick has a special 8MB version of the MCU with an OTA address of 0x100000, the
+for LibreTiny. But since the Solis WiFi stick has a special 8MB version of the MCU with an OTA address of 0x100000, the
 not exactly matching profile `generic-rtl8710bx-4mb-980k` is used here, manually [setting the MCU type and frequency in
-the PlatformIO options to the correct value](https://github.com/kuba2k2/libretuya/issues/91#issuecomment-1476792864).
+the PlatformIO options to the correct value](https://github.com/kuba2k2/libretiny/issues/91#issuecomment-1476792864).
 
-:warning: Warning: LibreTuya is work in progress, e.g. WiFi AP mode and
+:warning: Warning: LibreTiny is work in progress, e.g. WiFi AP mode and
 other things are under development. Obviously writing to the flash memory is dangerous and may
 permanently damage your device.
 
