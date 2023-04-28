@@ -287,7 +287,7 @@ permanently damage your device. Be careful and keep children away.
 ### Replacing the main application
 
 Thanks to the fine folks at [LibreTiny](https://github.com/kuba2k2/libretiny), arduino-compatible cores
-for RTL8710B chips are available. And there is even a corresponding [ESPhome port](https://docs.libretiny.ml/docs/projects/esphome/).
+for RTL8710B chips are available. And there is even a corresponding [ESPhome port](https://docs.libretiny.eu/docs/projects/esphome/).
 
 ![Solis ESPhome sample screen](solis-esphome.png "Solis ESPhome Homeassistant")
 
