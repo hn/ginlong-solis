@@ -6,11 +6,15 @@ Almost all of their products have an [Modbus](https://en.wikipedia.org/wiki/Modb
 
 ## ESP8266 Solis to InfluxDB logger
 
-With [solis2influx.ino](solis2influx.ino) one can read out all inverter data (status and statistics) via Modbus and push it to InfluxDB.
+### Hardware
+
 You need a proprietary [Exceedconn](http://www.exceedconn.com/) [EC04681-2014-BF](http://www.exceedconn.com/e_products_detail.asp?id=76) connector (available on Ebay) and an RS485-to-serial adapter (a [cheap one without DE/RE pins](https://arduino.stackexchange.com/questions/83501/when-it-comes-to-uart-to-rs485-communication-what-is-the-difference-between-the) is sufficient, e.g. the `HW-0519`, `XY-K485` or `XY-017`). Wire all components to e.g. a Wemos D1 mini (also available as 'pro' variant with an SMA connector and external antenna for better reception) as follows:
 
 ![Solis ESP8266 wiring](solis-esp8266-wiring.jpg "Solis ESP8266 wiring")
 
+# Software (Arduino)
+
+With [solis2influx.ino](solis2influx.ino) one can read out all inverter data (status and statistics) via Modbus and push it to InfluxDB.
 It uses [WiFiManager](https://github.com/tzapu/WiFiManager) to setup WiFi, so you have to connect to the `SOLIS2INFLUX` access point with your mobile phone first.
 
 The reading of the data starts immediately after configuring WiFi. The data is not sent to the InfluxDB server until the inverter's serial number has been read, which may take a moment (the serial number is added as a mandatory tag to distinguish multiple inverters):
