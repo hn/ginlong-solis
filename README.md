@@ -12,7 +12,7 @@ You need a proprietary [Exceedconn](http://www.exceedconn.com/) [EC04681-2014-BF
 
 ![Solis ESP8266 wiring](solis-esp8266-wiring.jpg "Solis ESP8266 wiring")
 
-# Software (Arduino)
+### Software (Arduino)
 
 With [solis2influx.ino](solis2influx.ino) one can read out all inverter data (status and statistics) via Modbus and push it to InfluxDB.
 It uses [WiFiManager](https://github.com/tzapu/WiFiManager) to setup WiFi, so you have to connect to the `SOLIS2INFLUX` access point with your mobile phone first.
