@@ -1,0 +1,307 @@
+#
+# solis-modbus-esinv.yaml -- Ginlong Solis ESINV Inverter modbus sensors include file
+#
+# ! This file is to be included as a package in an ESPhome definition !
+# ! This file only works with Solis 'ESINV' type inverters !
+#
+# (C) 2023 Hajo Noerenberg
+#
+# http://www.noerenberg.de/
+# https://github.com/hn/ginlong-solis
+#
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3.0 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program. If not, see <http://www.gnu.org/licenses/gpl-3.0.txt>.
+#
+
+binary_sensor:
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Operation status Normal
+    register_type: read
+    address: 33121
+    bitmask: 0x0001
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Operation status Initializing
+    register_type: read
+    address: 33121
+    bitmask: 0x0002
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Operation status Grid off
+    device_class: problem
+    register_type: read
+    address: 33121
+    bitmask: 0x0004
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Operation status Fault to stop
+    device_class: problem
+    register_type: read
+    address: 33121
+    bitmask: 0x0008
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Operation status Standby
+    register_type: read
+    address: 33121
+    bitmask: 0x0010
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Operation status Derating
+    register_type: read
+    address: 33121
+    bitmask: 0x0020
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Operation status Limitating
+    register_type: read
+    address: 33121
+    bitmask: 0x0040
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Operation status Grid surge
+    device_class: problem
+    register_type: read
+    address: 33121
+    bitmask: 0x0100
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Operation status Fan fault
+    device_class: problem
+    register_type: read
+    address: 33121
+    bitmask: 0x0200
+
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Active Power
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
+    register_type: read
+    address: 33079
+    value_type: U_DWORD
+    on_value:
+      then:
+        - script.execute: modbus_activity
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Total DC output power
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
+    register_type: read
+    address: 33057
+    value_type: U_DWORD
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Total energy
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 33029
+    value_type: U_DWORD
+    force_new_range: true # workaround to seperate reg 3006: "skip_updates applies for all components in the same range"
+    skip_updates: 10
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Energy this month
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 33031
+    value_type: U_DWORD
+    skip_updates: 10
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Energy last month
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 33033
+    value_type: U_DWORD
+    skip_updates: 10
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Energy today
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 33035
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+    skip_updates: 10
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Energy last day
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 33036
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+    skip_updates: 10
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: DC voltage 1
+    device_class: voltage
+    state_class: measurement
+    unit_of_measurement: V
+    register_type: read
+    address: 33049
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: DC current 1
+    device_class: current
+    state_class: measurement
+    unit_of_measurement: A
+    register_type: read
+    address: 33050
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: DC voltage 2
+    device_class: voltage
+    state_class: measurement
+    unit_of_measurement: V
+    register_type: read
+    address: 33051
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: DC current 2
+    device_class: current
+    state_class: measurement
+    unit_of_measurement: A
+    register_type: read
+    address: 33052
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Inverter temperature
+    device_class: temperature
+    state_class: measurement
+    unit_of_measurement: C
+    register_type: read
+    address: 33093
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Grid frequency
+    device_class: frequency
+    state_class: measurement
+    unit_of_measurement: Hz
+    register_type: read
+    address: 33094
+    value_type: U_WORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.01
+
+text_sensor:
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Product model
+    register_type: read
+    address: 33000
+    response_size: 2
+    raw_encode: HEXBYTES
+    entity_category: diagnostic
+    icon: mdi:factory
+    skip_updates: 10
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: DSP software version
+    register_type: read
+    address: 33001
+    response_size: 2
+    force_new_range: true # workaround for bug concatening model, dsp and lcd
+    raw_encode: HEXBYTES
+    entity_category: diagnostic
+    icon: mdi:chip
+    skip_updates: 10
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Country standard code
+    register_type: read
+    address: 33092
+    response_size: 2
+    raw_encode: HEXBYTES
+    entity_category: diagnostic
+    icon: mdi:earth
+    skip_updates: 10
+    lambda: |-
+      uint16_t value = modbus_controller::word_from_hex_str(x, 0);
+      switch (value) {
+        /* Solis Spec Appendix 3 */
+        case 0x003: return std::string("VDE0126");
+        case 0x009: return std::string("MEX-CFE");
+        case 0x00B: return std::string("VDE4105");
+      }
+      return x;
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Inverter SN
+    register_type: read
+    address: 33004
+    register_count: 4
+    raw_encode: HEXBYTES
+    entity_category: diagnostic
+    icon: mdi:numeric
+    skip_updates: 10
+    lambda: |-
+      char serialnumber[4 * 4 + 1];
+      for (int j = 0; j < 4; j++) {
+        unsigned int r = esphome::modbus_controller::word_from_hex_str(x, j * 2);;
+        sprintf(serialnumber + (j * 4), "%02x%02x",
+          (r & 0x0F) << 4 | (r & 0xF0) >> 4, (r & 0x0F00) >> 4 | (r & 0xF000) >> 12);
+      }
+      serialnumber[4 * 4] = 0;
+      return std::string(serialnumber);
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Inverter type definition
+    register_type: read
+    address: 35000
+    response_size: 2
+    raw_encode: HEXBYTES
+    entity_category: diagnostic
+    icon: mdi:chip
+    skip_updates: 10
