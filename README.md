@@ -291,7 +291,7 @@ for RTL8710B chips are available. And there is even a corresponding [ESPhome por
 
 ![Solis ESPhome sample screen](solis-esphome.png "Solis ESPhome Homeassistant")
 
-With [solis-inv-esphome.yaml](solis-inv-esphome.yaml) you can read out all
+With [solis-esphome-emw3080.yaml](solis-esphome-emw3080.yaml) you can read out all
 relevant status and statistics data from your Solis inverter and push it to Home Assistant.
 
 :raised_hand: This YAML file is only compatible with [Solis 'INV' type inverters](#solis-modbus-register-map-and-rs-485-documentation).
@@ -307,10 +307,12 @@ $
 $ git clone https://github.com/kuba2k2/libretiny-esphome
 $ cd libretiny-esphome
 $ pip3 install -r requirements.txt
-$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/solis-inv-esphome.yaml	# edit timezone as needed
-$ echo -e "wifi_ssid: foo\nwifi_password: foo\nwifi_ap_ssid: foo\nwifi_ap_password: foo" > secrets.yaml	# edit as needed
+$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/solis-esphome-emw3080.yaml	# edit timezone as needed
+$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/solis-modbus-inv.yaml
+$ mkdir common; mv solis-modbus-inv.yaml common/
+$ echo -e "wifi_ssid: foo\nwifi_password: foo\nwifi_ap_ssid: foo\nwifi_ap_password: foo\napi_encryption_key: foo\nota_password: foo" > secrets.yaml	# edit as needed
 $
-$ python3 -m esphome compile solis-inv-esphome.yaml
+$ python3 -m esphome compile solis-esphome-emw3080.yaml
 ```
 
 Set the MCU to `UART boot mode` (pull TX pin low during boot) and backup the stock firmware
@@ -323,7 +325,7 @@ $ ./rtltool.py -p /dev/ttyUSB0 rf 0x8000000 0x800000 solis-s3-firmware-1012f.bin
 Flashing the ESPhome image (replacing 2ndboot and old main app altogether) is as simple as
 
 ```
-python3 -m esphome upload solis-inv-esphome.yaml --device /dev/ttyUSB0
+python3 -m esphome upload solis-esphome-emw3080.yaml --device /dev/ttyUSB0
 ```
 
 After flashing, you can reconnect the S3 WiFi stick to the inverter and
@@ -331,7 +333,7 @@ the status data will magically (add integration -> ESPhome -> host=\<ipaddress o
 For subsequent uploads you can simply OTA-upload the firmware:
 
 ```
-python3 -m esphome upload solis-inv-esphome.yaml --device <ipaddress>
+python3 -m esphome upload solis-esphome-emw3080.yaml --device <ipaddress>
 ```
 
 :bulb: Matching the EMW3080 datasheet, one should actually use the `generic-rtl8710bn-2mb-788k` board profile

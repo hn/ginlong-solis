@@ -1,0 +1,155 @@
+#
+# solis-esphome-emw3080.yaml -- Ginlong Solis Inverter ESPhome definition for EMW3080 MCUs.
+#
+# The hardware described in this file (MCU and GPIO) corresponds to that of the Solis S3 WiFi stick.
+#
+# (C) 2023 Hajo Noerenberg
+#
+# Usage:
+#   1. Depending on your type of inverter (INV or ESINV),
+#      include modbus definition in 'packages' section below 
+#   2. Correctly set timezone in the 'time' section below,
+#      as the time of your inverter is set via NTP.
+#      https://esphome.io/components/time/index.html
+#   3. Compile and upload
+#      https://docs.libretiny.eu/docs/projects/esphome/#build-upload
+#
+#
+# http://www.noerenberg.de/
+# https://github.com/hn/ginlong-solis
+#
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3.0 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program. If not, see <http://www.gnu.org/licenses/gpl-3.0.txt>.
+#
+
+esphome:
+  name: solis-emw3080
+  friendly_name: Ginlong Solis Inverter
+  name_add_mac_suffix: true
+  platformio_options:
+    board_build.mcu: rtl8710bn
+    board_build.f_cpu: 125000000L
+
+libretiny:
+  board: generic-rtl8710bx-4mb-980k
+  framework:
+    version: latest
+
+logger:
+
+packages:
+  device_base: !include common/solis-modbus-inv.yaml
+  #device_base: !include common/solis-modbus-esinv.yaml
+
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: "CET-1CEST,M3.5.0,M10.5.0/3"
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Ginlong Solis Inverter"
+    password: !secret wifi_ap_password
+
+captive_portal:
+
+interval:
+  - interval: 1s
+    then:
+      if:
+        condition:
+          wifi.connected:
+        then:
+          if:
+            condition:
+              switch.is_off: led_green_net
+            then:
+              - switch.turn_on: led_green_net
+        else:
+          if:
+            condition:
+              switch.is_on: led_green_net
+            then:
+              - switch.turn_off: led_green_net
+
+script:
+  - mode: restart
+    id: modbus_activity
+    then:
+      - switch.turn_on: led_orange_com
+      - delay: 500ms
+      - switch.turn_off: led_orange_com
+
+uart:
+  id: modbus_uart
+  tx_pin: PA23
+  rx_pin: PA18
+  baud_rate: 9600
+
+modbus:
+  flow_control_pin: PA19
+  send_wait_time: 300ms
+  id: modbus_hw
+
+modbus_controller:
+  - id: modbus_master
+    address: 0x1
+    modbus_id: modbus_hw
+    setup_priority: -10
+
+button:
+  - platform: factory_reset
+    name: Restart with factory default settings
+    id: reset_all
+  - platform: restart
+    name: Reboot device
+
+switch:
+  - platform: gpio
+    restore_mode: ALWAYS_OFF
+    pin:
+      number: PA12
+      mode: output
+    id: led_orange_com
+  - platform: gpio
+    restore_mode: ALWAYS_OFF
+    pin:
+      number: PA05
+      mode: output
+    id: led_green_net
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: PA08
+      inverted: true
+    id: button_reset
+    on_click:
+      min_length: 5s
+      max_length: 300s
+      then:
+        - button.press: reset_all
+
+sensor:
+  - platform: wifi_signal
+    name: "WiFi Signal"
+
