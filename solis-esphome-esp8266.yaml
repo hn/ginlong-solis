@@ -1,0 +1,101 @@
+#
+# solis-esphome-esp8266.yaml -- Ginlong Solis Inverter ESPhome definition for ESP8266 MCUs.
+#
+# (C) 2023 Hajo Noerenberg
+#
+# Usage:
+#   1. Depending on your type of inverter (INV or ESINV),
+#      include modbus definition in 'packages' section below 
+#   2. Correctly set timezone in the 'time' section below,
+#      as the time of your inverter is set via NTP.
+#      https://esphome.io/components/time/index.html
+#   3. Compile and upload
+#      https://esphome.io/guides/getting_started_command_line.html#first-uploading
+#
+#
+# http://www.noerenberg.de/
+# https://github.com/hn/ginlong-solis
+#
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3.0 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program. If not, see <http://www.gnu.org/licenses/gpl-3.0.txt>.
+#
+
+esphome:
+  name: solis-esp8266
+  friendly_name: Ginlong Solis Inverter
+  name_add_mac_suffix: true
+
+esp8266:
+  board: d1_mini
+
+logger:
+
+packages:
+  device_base: !include common/solis-modbus-inv.yaml
+  #device_base: !include common/solis-modbus-esinv.yaml
+
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: "CET-1CEST,M3.5.0,M10.5.0/3"
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Ginlong Solis Inverter"
+    password: !secret wifi_ap_password
+
+captive_portal:
+
+script:
+  - mode: restart
+    id: modbus_activity
+    then:
+      # e.g. blink led
+
+uart:
+  id: modbus_uart
+  tx_pin: D6
+  rx_pin: D5
+  baud_rate: 9600
+
+modbus:
+  #flow_control_pin: D7
+  send_wait_time: 300ms
+  id: modbus_hw
+
+modbus_controller:
+  - id: modbus_master
+    address: 0x1
+    modbus_id: modbus_hw
+    setup_priority: -10
+
+button:
+  - platform: factory_reset
+    name: Restart with factory default settings
+    id: reset_all
+  - platform: restart
+    name: Reboot device
+
+sensor:
+  - platform: wifi_signal
+    name: "WiFi Signal"
+
