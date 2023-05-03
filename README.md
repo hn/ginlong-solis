@@ -327,7 +327,7 @@ python3 -m esphome upload solis-inv-esphome.yaml --device /dev/ttyUSB0
 ```
 
 After flashing, you can reconnect the S3 WiFi stick to the inverter and
-the status data will magically (add integration -> ESPhome -> host=<ipaddress of WiFi stick>) appear in Home Assistant.
+the status data will magically (add integration -> ESPhome -> host=\<ipaddress of WiFi stick\>) appear in Home Assistant.
 For subsequent uploads you can simply OTA-upload the firmware:
 
 ```
