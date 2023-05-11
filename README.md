@@ -33,7 +33,7 @@ Writing to influxDB: solis,serialnumber=1801020221230123 Energy\ last\ month=234
 
 ### Software (ESPhome)
 
-[solis-esphome-esp8266.yaml](solis-esphome-esp8266.yaml) is an ready-to-use
+Especially if you are using Home Assistant, [solis-esphome-esp8266.yaml](solis-esphome-esp8266.yaml) is an ready-to-use
 configuration file for [ESPhome](https://esphome.io/).
 
 ## Solis Modbus Register Map and RS-485 documentation
@@ -299,9 +299,6 @@ for RTL8710B chips are available. And there is even a corresponding [ESPhome por
 With [solis-esphome-emw3080.yaml](solis-esphome-emw3080.yaml) you can read out all
 relevant status and statistics data from your Solis inverter and push it to Home Assistant.
 
-:raised_hand: This YAML file is only compatible with [Solis 'INV' type inverters](#solis-modbus-register-map-and-rs-485-documentation).
-In principle, it can be adapted to inverters of the 'ESINV' type by modifying the ModBus register map.
-
 Setup the environment and compile the ESPhome firmware as follows:
 
 ```
@@ -312,8 +309,8 @@ $
 $ git clone https://github.com/kuba2k2/libretiny-esphome
 $ cd libretiny-esphome
 $ pip3 install -r requirements.txt
-$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/solis-esphome-emw3080.yaml	# edit timezone as needed
-$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/solis-modbus-inv.yaml
+$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/solis-esphome-emw3080.yaml	# edit timezone and inverter type as needed
+$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/solis-modbus-inv.yaml	# change to 'esinv' depending on your inverter type
 $ mkdir common; mv solis-modbus-inv.yaml common/
 $ echo -e "wifi_ssid: foo\nwifi_password: foo\nwifi_ap_ssid: foo\nwifi_ap_password: foo\napi_encryption_key: foo\nota_password: foo" > secrets.yaml	# edit as needed
 $
