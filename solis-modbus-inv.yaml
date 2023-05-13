@@ -215,7 +215,7 @@ sensor:
     name: Inverter temperature
     device_class: temperature
     state_class: measurement
-    unit_of_measurement: C
+    unit_of_measurement: °C
     register_type: read
     address: 3041 # = 3042 - 1
     value_type: U_WORD
