@@ -294,12 +294,12 @@ permanently damage your device. Be careful and keep children away.
 Thanks to the fine folks at [LibreTiny](https://github.com/kuba2k2/libretiny), arduino-compatible cores
 for RTL8710B chips are available. And there is even a corresponding [ESPhome port](https://docs.libretiny.eu/docs/projects/esphome/).
 
+With [solis-esphome-emw3080.yaml](solis-esphome-emw3080.yaml) you can read out all
+relevant status and statistics data from your Solis inverter and push it to Home Assistant:
+
 ![Solis ESPhome sample screen](solis-esphome.png "Solis ESPhome Homeassistant")
 
-With [solis-esphome-emw3080.yaml](solis-esphome-emw3080.yaml) you can read out all
-relevant status and statistics data from your Solis inverter and push it to Home Assistant.
-
-Setup the environment and compile the ESPhome firmware as follows:
+Setup the environment and compile the ESPhome firmware for the S3 stick as follows:
 
 ```
 $ sudo apt-get install python3-pip
@@ -343,9 +343,9 @@ for LibreTiny. But since the Solis WiFi stick has a special 8MB version of the M
 not exactly matching profile `generic-rtl8710bx-4mb-980k` is used here, manually [setting the MCU type and frequency in
 the PlatformIO options to the correct value](https://github.com/kuba2k2/libretiny/issues/91#issuecomment-1476792864).
 
-:warning: Warning: LibreTiny is work in progress, e.g. WiFi AP mode and
-other things are under development. Obviously writing to the flash memory is dangerous and may
-permanently damage your device.
+:warning: Warning: LibreTiny is work in progress, currently there are at least
+sporadic [issues with ModBus traffic](https://github.com/hn/ginlong-solis/issues/4).
+Obviously writing to the flash memory is dangerous and may permanently damage your device.
 
 ## Misc
 
