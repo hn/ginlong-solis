@@ -303,7 +303,10 @@ void loop() {
           unsigned int regvalue = modbus.getResponseBuffer(0);
           sprintf(buf, "0x%04X", regvalue);
           Serial.print(buf);
-          if ((regvalue / 100) == 10) {           /* RS485_MODBUS (INV-3000ID EPM-36000ID) inverter protocol */
+          if (regvalue == 0) {
+            Serial.print("Info: Unable to identify inverter type, please set it manually");
+            /* solis = solisINV; */
+          } else if ((regvalue / 100) == 10) {           /* RS485_MODBUS (INV-3000ID EPM-36000ID) inverter protocol */
             solis = solisINV;
           } else if ((regvalue / 100) == 20) {    /* RS485_MODBUS (ESINV-33000ID) energy storage inverter protocol */
             solis = solisESINV;
