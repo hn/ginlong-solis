@@ -12,6 +12,11 @@ You need a proprietary [Exceedconn](http://www.exceedconn.com/) [EC04681-2014-BF
 
 ![Solis ESP8266 wiring](solis-esp8266-wiring.jpg "Solis ESP8266 wiring")
 
+### Software (ESPhome)
+
+Especially recommended if you use Home Assistant, [solis-esphome-esp8266.yaml](solis-esphome-esp8266.yaml) is an ready-to-use
+configuration file for [ESPhome](https://esphome.io/).
+
 ### Software (Arduino)
 
 With [solis2influx.ino](solis2influx.ino) one can read out all inverter data (status and statistics) via Modbus and push it to InfluxDB.
@@ -30,11 +35,6 @@ Energy today = 1.23kWh
 Energy last day = 3.45kWh
 Writing to influxDB: solis,serialnumber=1801020221230123 Energy\ last\ month=234i,Energy\ today=1.23,Energy\ last\ day=3.45
 ```
-
-### Software (ESPhome)
-
-Especially if you are using Home Assistant, [solis-esphome-esp8266.yaml](solis-esphome-esp8266.yaml) is an ready-to-use
-configuration file for [ESPhome](https://esphome.io/).
 
 ## Solis Modbus Register Map and RS-485 documentation
 
