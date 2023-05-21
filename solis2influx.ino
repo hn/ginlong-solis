@@ -310,6 +310,8 @@ void loop() {
             solis = solisINV;
           } else if ((regvalue / 100) == 20) {    /* RS485_MODBUS (ESINV-33000ID) energy storage inverter protocol */
             solis = solisESINV;
+          } else if ((regvalue / 0x100) == 0x20) {    /* non-decimal version of the above, still unsure what's the right way */
+            solis = solisESINV;
           }
         }
         break;
