@@ -165,7 +165,7 @@ Open xModem Transfer on Log UART...
 ```
 
 When the device is in this mode, one can download the firmware using
-[RTLtool](https://esp8266.ru/forum/threads/rtl871xbx-tools-ameba-z.2673/) (depends on Python2,
+[RTLtool](https://github.com/pvvx/RTL0B_SDK/blob/master/mkb/rtltool.py) (depends on Python2,
 thankfully there is also a [Python3 compatible version](https://github.com/libretiny/ltchiptool/tree/master/ltchiptool/soc/ambz/util)
 available):
 
