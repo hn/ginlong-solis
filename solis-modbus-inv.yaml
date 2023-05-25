@@ -23,6 +23,39 @@
 # with this program. If not, see <http://www.gnu.org/licenses/gpl-3.0.txt>.
 #
 
+number:
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Limit output power
+    disabled_by_default: true # intentionally disabled, remove if you know what you are doing
+    register_type: holding
+    address: 3051 # = 3052 - 1
+    value_type: S_WORD
+    unit_of_measurement: '%'
+    entity_category: config
+    icon: mdi:percent
+    skip_updates: 10
+    mode: box
+    min_value: 0
+    max_value: 110
+    multiply: 100
+
+select:
+  - platform: modbus_controller
+    name: Working Mode
+    disabled_by_default: true # intentionally disabled, remove if you know what you are doing
+    address: 3040 # = 3041 - 1
+    value_type: U_WORD
+    skip_updates: 10
+    optionsmap:
+      "No response mode": 0
+      "Volt-Watt default": 1
+      "Volt-VAr": 2
+      "Fixed power factor": 3
+      "Fix reactive power": 4
+      "Power-PF": 5
+      "Rule21Volt-Watt": 6
+
 binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_master
