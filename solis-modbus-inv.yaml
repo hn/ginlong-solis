@@ -46,6 +46,8 @@ select:
     disabled_by_default: true # intentionally disabled, remove if you know what you are doing
     address: 3040 # = 3041 - 1
     value_type: U_WORD
+    entity_category: config
+    icon: mdi:cog-outline
     skip_updates: 10
     optionsmap:
       "No response mode": 0
