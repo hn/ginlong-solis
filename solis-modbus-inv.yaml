@@ -380,7 +380,7 @@ text_sensor:
         double deviation = difftime(i_t, s_espt.timestamp);
         if (abs(deviation) > 42) {
           std::vector<uint16_t> rtc_data =
-            {s_espt.year % 100, s_espt.month, s_espt.day_of_month, s_espt.hour, s_espt.minute, s_espt.second};
+            {(uint16_t) (s_espt.year % 100), s_espt.month, s_espt.day_of_month, s_espt.hour, s_espt.minute, s_espt.second};
           modbus_controller::ModbusCommandItem set_rtc_command =
             modbus_controller::ModbusCommandItem::create_write_multiple_command(modbus_master, item->start_address, item->register_count, rtc_data);
           modbus_master->queue_command(set_rtc_command);
