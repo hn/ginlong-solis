@@ -317,7 +317,7 @@ $
 $ python3 -m esphome compile solis-esphome-emw3080.yaml
 ```
 
-Set the MCU to `UART boot mode` (pull TX pin low during boot) and backup the stock firmware
+Set the MCU to `UART boot mode` ([pull TX pin low during boot](https://github.com/hn/ginlong-solis/issues/9)) and backup the stock firmware
 (you have to use rtltool since ltchiptool does not allow to read more than 2MB for this MCU type):
 
 ```
