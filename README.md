@@ -166,14 +166,14 @@ Open xModem Transfer on Log UART...
 
 When the device is in this mode, one can download the firmware using
 [RTLtool](https://github.com/pvvx/RTL0B_SDK/blob/master/mkb/rtltool.py) (depends on Python2,
-thankfully there is also a [Python3 compatible version](https://github.com/libretiny/ltchiptool/tree/master/ltchiptool/soc/ambz/util)
-available):
+there is also a [Python3 compatible version](https://github.com/libretiny/ltchiptool/tree/master/ltchiptool/soc/ambz/util)
+available, which unfortunately seems to have a few issues):
 
 ```
-$ ./rtltool.py -p /dev/ttyUSB0 gf
+$ python2 ./rtltool.py -p /dev/ttyUSB0 gf
 Connecting...
 Flash Status value: 0x40
-$ ./rtltool.py -p /dev/ttyUSB0 rf 0x8000000 0x800000 dump-0x8000000-0x800000.bin
+$ python2 ./rtltool.py -p /dev/ttyUSB0 rf 0x8000000 0x800000 dump-0x8000000-0x800000.bin
 Connecting...
 Read Flash data from 0x08000000 to 0x08800000 in file: dump-0x8000000-0x800000.bin ...
 Done!
@@ -321,13 +321,13 @@ Set the MCU to `UART boot mode` ([pull TX pin low during boot](https://github.co
 (you have to use rtltool since ltchiptool does not allow to read more than 2MB for this MCU type):
 
 ```
-$ ./rtltool.py -p /dev/ttyUSB0 rf 0x8000000 0x800000 solis-s3-firmware-1012f.bin
+$ python2 ./rtltool.py -p /dev/ttyUSB0 rf 0x8000000 0x800000 solis-s3-firmware-1012f.bin
 ```
 
 Flashing the ESPhome image (replacing 2ndboot and old main app altogether) is as simple as
 
 ```
-python3 -m esphome upload solis-esphome-emw3080.yaml --device /dev/ttyUSB0
+$ python3 -m esphome upload solis-esphome-emw3080.yaml --device /dev/ttyUSB0
 ```
 
 After flashing, you can reconnect the S3 WiFi stick to the inverter and
@@ -335,7 +335,7 @@ the status data will magically (add integration -> ESPhome -> host=\<ipaddress o
 For subsequent uploads you can simply OTA-upload the firmware:
 
 ```
-python3 -m esphome upload solis-esphome-emw3080.yaml --device <ipaddress>
+$ python3 -m esphome upload solis-esphome-emw3080.yaml --device <ipaddress>
 ```
 
 :bulb: Matching the EMW3080 datasheet, one should actually use the `generic-rtl8710bn-2mb-788k` board profile
