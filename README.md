@@ -4,6 +4,11 @@
 [Ginlong Solis](https://www.ginlong.com/) is one of the world's recognised manufacturers of string solar inverters.
 Almost all of their products have an [Modbus](https://en.wikipedia.org/wiki/Modbus) [RS-485](https://en.wikipedia.org/wiki/RS-485) interface for reading live status and statistics.
 
+Quick start, you'll find here:
+- [An ESPhome solution to integrate your inverter into Home Assistant, using an ESP8266](#software-esphome)
+- [An ESPhome solution to integrate your inverter into Home Assistant, by replacing the firmware of the Solis S3 WiFi stick](#replacing-the-main-application)
+- [An Arduino solution to push data from your inverter to InfluxDB, using an ESP8266](#software-arduino)
+
 ## ESP8266 Solis to InfluxDB logger
 
 ### Hardware
@@ -15,7 +20,7 @@ You need a proprietary [Exceedconn](http://www.exceedconn.com/) [EC04681-2014-BF
 ### Software (ESPhome)
 
 Especially recommended if you use Home Assistant, [solis-esphome-esp8266.yaml](solis-esphome-esp8266.yaml) is an ready-to-use
-configuration file for [ESPhome](https://esphome.io/).
+configuration file for [ESPhome](https://esphome.io/), using an ESP8266.
 
 ### Software (Arduino)
 
