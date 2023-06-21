@@ -8,8 +8,13 @@ Quick start, you'll find here:
 - [An ESPhome solution to integrate your inverter into Home Assistant, using an ESP8266](#software-esphome)
 - [An ESPhome solution to integrate your inverter into Home Assistant, by replacing the firmware of the Solis S3 WiFi stick](#replacing-the-main-application)
 - [An Arduino solution to push data from your inverter to InfluxDB, using an ESP8266](#software-arduino)
+- [A wiring diagram for connecting the inverter to an ESP8266 via ModBus/RS485](#hardware)
 
-## ESP8266 Solis to InfluxDB logger
+The ESPhome solution also has some advanced features such as limiting the inverter output power, synchronising the inverter time via NTP and more.
+
+![Solis ESPhome sample screen](solis-esphome.png "Solis ESPhome Homeassistant")
+
+## ESP8266 Solis interface
 
 ### Hardware
 
@@ -20,7 +25,8 @@ You need a proprietary [Exceedconn](http://www.exceedconn.com/) [EC04681-2014-BF
 ### Software (ESPhome)
 
 Especially recommended if you use Home Assistant, [solis-esphome-esp8266.yaml](solis-esphome-esp8266.yaml) is an ready-to-use
-configuration file for [ESPhome](https://esphome.io/), using an ESP8266.
+configuration file for [ESPhome](https://esphome.io/), using an ESP8266. With the [ESPhome dashboard](https://esphome.io/guides/getting_started_hassio.html)
+you can easily set up your system with just a few clicks via a user-friendly web interface.
 
 ### Software (Arduino)
 
@@ -40,27 +46,6 @@ Energy today = 1.23kWh
 Energy last day = 3.45kWh
 Writing to influxDB: solis,serialnumber=1801020221230123 Energy\ last\ month=234i,Energy\ today=1.23,Energy\ last\ day=3.45
 ```
-
-## Solis Modbus Register Map and RS-485 documentation
-
-Solis products feature (at least) two different Modbus register maps, the
-`ESINV` (energy storage inverter) map mostly uses registers in the 3xxxx (ten-thousands) range
-and the `INV` (inverter) map uses the 3xxx (thousands) range.
-It is probably a good practice (not thoroughly tested) to query register 35000 ("inverter type definition")
-and act according to the first two _decimal_ places of the read value
-(the documentation says: "high 8 bit means protocol version, low 8 bit means inverter
-model", but I think this is only correct if you interpret it as some kind of 'decimal bits'):
-
-- `10`: see [RS485_MODBUS (INV-3000IDEPM-36000ID) inverter protocol](https://ginlongsolis.freshdesk.com/helpdesk/attachments/36112313359)
-- `20`: see [RS485_MODBUS (ESINV-33000ID) energy storage inverter protocol](https://forum.iobroker.net/assets/uploads/files/1619515984065-_without-control-hybrid-en-2020.9.15_rs485_modbus-esinv-33000id-hybrid-inverter.pdf)
-
-For the `INV` 3xxx Register Map, you'll need to subtract offset 1 from addresses
-before transmitting on the bus (see explanation in section 5.3 of the
-document).
-
-[Dr. Brian Coghlan](https://www.scss.tcd.ie/Brian.Coghlan/) initially translated the
-`ESINV`-Modbus [inverter communication protocol](https://www.scss.tcd.ie/Brian.Coghlan/Elios4you/RS485_MODBUS-Hybrid-BACoghlan-201811228-1854.pdf) from chinese to english in 2018,
-but it now seems to me to have been superseded by the official versions from Solis linked above.
 
 ## Solis S3 WiFi Data Logging Stick (3rd gen)
 
@@ -300,10 +285,7 @@ Thanks to the fine folks at [LibreTiny](https://github.com/kuba2k2/libretiny), a
 for RTL8710B chips are available. And there is even a corresponding [ESPhome port](https://docs.libretiny.eu/docs/projects/esphome/).
 
 With [solis-esphome-emw3080.yaml](solis-esphome-emw3080.yaml) you can read out all
-relevant status and statistics data from your Solis inverter and push it to Home Assistant:
-
-![Solis ESPhome sample screen](solis-esphome.png "Solis ESPhome Homeassistant")
-
+relevant status and statistics data from your Solis inverter and push it to Home Assistant.
 Setup the environment and compile the ESPhome firmware for the S3 stick as follows:
 
 ```
@@ -348,9 +330,34 @@ for LibreTiny. But since the Solis WiFi stick has a special 8MB version of the M
 not exactly matching profile `generic-rtl8710bx-4mb-980k` is used here, manually [setting the MCU type and frequency in
 the PlatformIO options to the correct value](https://github.com/kuba2k2/libretiny/issues/91#issuecomment-1476792864).
 
+:bulb: There is also a [LibreTiny ESPhome addon for Home Assistant](https://github.com/libretiny-eu/esphome-hass-addon) available. This is
+probably a more convienient way to compile and upload the replacement firmware.
+However, due to the limited debugging and patching possibilities, it may not (yet) be a suitable approach for all use cases.
+
 :warning: Warning: LibreTiny is work in progress, currently there are at least
 sporadic [issues with ModBus traffic](https://github.com/hn/ginlong-solis/issues/4).
 Obviously writing to the flash memory is dangerous and may permanently damage your device.
+
+## Solis Modbus Register Map and RS-485 documentation
+
+Solis products feature (at least) two different Modbus register maps, the
+`ESINV` (energy storage inverter) map mostly uses registers in the 3xxxx (ten-thousands) range
+and the `INV` (inverter) map uses the 3xxx (thousands) range.
+It is probably a good practice (not thoroughly tested) to query register 35000 ("inverter type definition")
+and act according to the first two _decimal_ places of the read value
+(the documentation says: "high 8 bit means protocol version, low 8 bit means inverter
+model", but I think this is only correct if you interpret it as some kind of 'decimal bits'):
+
+- `10`: see [RS485_MODBUS (INV-3000IDEPM-36000ID) inverter protocol](https://ginlongsolis.freshdesk.com/helpdesk/attachments/36112313359)
+- `20`: see [RS485_MODBUS (ESINV-33000ID) energy storage inverter protocol](https://forum.iobroker.net/assets/uploads/files/1619515984065-_without-control-hybrid-en-2020.9.15_rs485_modbus-esinv-33000id-hybrid-inverter.pdf)
+
+For the `INV` 3xxx Register Map, you'll need to subtract offset 1 from addresses
+before transmitting on the bus (see explanation in section 5.3 of the
+document).
+
+[Dr. Brian Coghlan](https://www.scss.tcd.ie/Brian.Coghlan/) initially translated the
+`ESINV`-Modbus [inverter communication protocol](https://www.scss.tcd.ie/Brian.Coghlan/Elios4you/RS485_MODBUS-Hybrid-BACoghlan-201811228-1854.pdf) from chinese to english in 2018,
+but it now seems to me to have been superseded by the official versions from Solis linked above.
 
 ## Misc
 
