@@ -39,6 +39,20 @@ number:
     min_value: 0
     max_value: 110
     multiply: 100
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Set backflow power
+    disabled_by_default: true # intentionally disabled, remove if you know what you are doing
+    register_type: holding
+    address: 43074
+    value_type: U_WORD
+    unit_of_measurement: 'W'
+    entity_category: config
+    icon: mdi:transmission-tower-import
+    skip_updates: 10
+    mode: box
+    min_value: 0
+    multiply: 0.01
 
 binary_sensor:
   - platform: modbus_controller
