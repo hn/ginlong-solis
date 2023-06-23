@@ -277,7 +277,7 @@ When writing to the flash with RTLtool (`wf` cmd), make sure to always write
 full 4096 bytes aligned data blocks (flash `SECTOR_SIZE 0x1000`).
 
 :warning: Warning: Obviously writing to the flash memory is dangerous and may
-permanently damage your device. Be careful and keep children away.
+permanently damage your device.
 
 ### Replacing the main application
 
@@ -325,18 +325,21 @@ For subsequent uploads you can simply OTA-upload the firmware:
 $ python3 -m esphome upload solis-esphome-emw3080.yaml --device <ipaddress>
 ```
 
-:bulb: Matching the EMW3080 datasheet, one should actually use the `generic-rtl8710bn-2mb-788k` board profile
-for LibreTiny. But since the Solis WiFi stick has a special 8MB version of the MCU with an OTA address of 0x100000, the
-not exactly matching profile `generic-rtl8710bx-4mb-980k` is used here, manually [setting the MCU type and frequency in
-the PlatformIO options to the correct value](https://github.com/kuba2k2/libretiny/issues/91#issuecomment-1476792864).
+:warning: Warning: LibreTiny is work in progress, currently there are at least
+sporadic [issues with ModBus traffic](https://github.com/hn/ginlong-solis/issues/4).
+Obviously writing to the flash memory is dangerous and may permanently damage your device. Be careful and keep children away.
+
+:warning: It is recommended to use a [good](https://zeptobars.com/en/read/FTDI-FT232RL-real-vs-fake-supereal) FTDI FT232RL USB serial adapter
+for dumping and flashing. Other adapters may have [problems with the required high transfer rate](https://github.com/hn/ginlong-solis/issues/9#issuecomment-1604134701).
 
 :bulb: There is also a [LibreTiny ESPhome addon for Home Assistant](https://github.com/libretiny-eu/esphome-hass-addon) available. This is
 probably a more convienient way to compile and upload the replacement firmware.
 However, due to the limited debugging and patching possibilities, it may not (yet) be a suitable approach for all use cases.
 
-:warning: Warning: LibreTiny is work in progress, currently there are at least
-sporadic [issues with ModBus traffic](https://github.com/hn/ginlong-solis/issues/4).
-Obviously writing to the flash memory is dangerous and may permanently damage your device.
+:bulb: Matching the EMW3080 datasheet, one should actually use the `generic-rtl8710bn-2mb-788k` board profile
+for LibreTiny. But since the Solis WiFi stick has a special 8MB version of the MCU with an OTA address of 0x100000, the
+not exactly matching profile `generic-rtl8710bx-4mb-980k` is used here, manually [setting the MCU type and frequency in
+the PlatformIO options to the correct value](https://github.com/kuba2k2/libretiny/issues/91#issuecomment-1476792864).
 
 ## Solis Modbus Register Map and RS-485 documentation
 
