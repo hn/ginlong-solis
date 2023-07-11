@@ -314,7 +314,11 @@ $ python2 ./rtltool.py -p /dev/ttyUSB0 rf 0x8000000 0x800000 solis-s3-firmware-1
 Flashing the ESPhome image (replacing 2ndboot and old main app altogether) is as simple as
 
 ```
-$ python3 -m esphome upload solis-esphome-emw3080.yaml --device /dev/ttyUSB0
+python2 ./rtltool2.py -p /dev/ttyUSB0 wf 0xb000 ./.esphome/build/solis-emw3080/.pioenvs/solis-emw3080/image_0x00B000.ota1.bin
+python2 ./rtltool2.py -p /dev/ttyUSB0 wf 0x100000 ./.esphome/build/solis-emw3080/.pioenvs/solis-emw3080/image_0x100000.ota2.bin
+
+# Better option, currently not working:
+# $ python3 -m esphome upload solis-esphome-emw3080.yaml --device /dev/ttyUSB0
 ```
 
 After flashing, you can reconnect the S3 WiFi stick to the inverter and
@@ -325,9 +329,14 @@ For subsequent uploads you can simply OTA-upload the firmware:
 $ python3 -m esphome upload solis-esphome-emw3080.yaml --device <ipaddress>
 ```
 
-:warning: Warning: LibreTiny is work in progress, currently there are at least
-sporadic [issues with ModBus traffic](https://github.com/hn/ginlong-solis/issues/4).
-Obviously writing to the flash memory is dangerous and may permanently damage your device. Be careful and keep children away.
+:warning: Warning: LibreTiny is work in progress and obviously writing to the flash memory is
+dangerous and may permanently damage your device. Be careful and keep children away.
+
+:warning: For me, this alternative firmware runs perfectly stable on the stick,
+yet this project is not for the faint-hearted, there are (at least) these challenges:
+- Issues with WiFi stability, see https://github.com/hn/ginlong-solis/issues/13
+- OTA password problem, see https://github.com/hn/ginlong-solis/issues/7#issuecomment-1561865512 and https://github.com/kuba2k2/libretiny/issues/142
+- Sporadic [issues with ModBus traffic](https://github.com/hn/ginlong-solis/issues/4)
 
 :warning: It is recommended to use a [good](https://zeptobars.com/en/read/FTDI-FT232RL-real-vs-fake-supereal) FTDI FT232RL USB serial adapter
 for dumping and flashing. Other adapters may have [problems with the required high transfer rate](https://github.com/hn/ginlong-solis/issues/9#issuecomment-1604134701).
