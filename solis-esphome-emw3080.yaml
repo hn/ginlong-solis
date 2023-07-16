@@ -90,6 +90,15 @@ interval:
               switch.is_on: led_green_net
             then:
               - switch.turn_off: led_green_net
+  - interval: 280s
+    then:
+      if:
+        condition:
+          wifi.connected:
+        then:
+          - switch.turn_on: wdt_reset
+          - delay: 100ms
+          - switch.turn_off: wdt_reset
 
 script:
   - mode: restart
@@ -136,6 +145,11 @@ switch:
       number: PA05
       mode: output
     id: led_green_net
+  - platform: gpio
+    pin:
+      number: PA00
+      mode: output
+    id: wdt_reset
 
 binary_sensor:
   - platform: gpio
