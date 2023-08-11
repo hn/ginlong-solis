@@ -381,7 +381,7 @@ text_sensor:
         if (abs(deviation) > 42) {
           std::vector<uint16_t> rtc_data =
             {(uint16_t) (s_espt.year % 100), s_espt.month, s_espt.day_of_month, s_espt.hour, s_espt.minute, s_espt.second};
-          modbus_controller::ModbusCommandItem set_rtc_command =
+          auto set_rtc_command =
             modbus_controller::ModbusCommandItem::create_write_multiple_command(modbus_master, item->start_address, item->register_count, rtc_data);
           modbus_master->queue_command(set_rtc_command);
           ESP_LOGI("SyncInverterRTC", "Inverter RTC deviation=%.fs, updated RTC to %02d:%02d:%02d %04d-%02d-%02d",
