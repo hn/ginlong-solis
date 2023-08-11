@@ -135,20 +135,14 @@ button:
 switch:
   - platform: gpio
     restore_mode: ALWAYS_OFF
-    pin:
-      number: PA12
-      mode: output
+    pin: PA12
     id: led_orange_com
   - platform: gpio
     restore_mode: ALWAYS_OFF
-    pin:
-      number: PA05
-      mode: output
+    pin: PA05
     id: led_green_net
   - platform: gpio
-    pin:
-      number: PA00
-      mode: output
+    pin: PA00
     id: wdt_reset
 
 binary_sensor:
