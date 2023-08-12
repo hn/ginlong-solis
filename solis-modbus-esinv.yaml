@@ -282,7 +282,7 @@ sensor:
     name: Battery state of health (SoC)
     device_class: battery
     state_class: measurement
-    unit_of_measurement: %
+    unit_of_measurement: "%"
     register_type: read
     address: 33139
     value_type: U_WORD
