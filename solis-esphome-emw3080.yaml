@@ -90,23 +90,17 @@ interval:
               switch.is_on: led_green_net
             then:
               - switch.turn_off: led_green_net
-  - interval: 280s
-    then:
-      if:
-        condition:
-          wifi.connected:
-        then:
-          - switch.turn_on: wdt_reset
-          - delay: 100ms
-          - switch.turn_off: wdt_reset
 
 script:
   - mode: restart
     id: modbus_activity
     then:
       - switch.turn_on: led_orange_com
-      - delay: 500ms
-      - switch.turn_off: led_orange_com
+      - if:
+          condition:
+            api.connected:
+          then:
+            - switch.turn_on: wdt_reset
 
 uart:
   id: modbus_uart
@@ -137,6 +131,9 @@ switch:
     restore_mode: ALWAYS_OFF
     pin: PA12
     id: led_orange_com
+    on_turn_on:
+    - delay: 500ms
+    - switch.turn_off: led_orange_com
   - platform: gpio
     restore_mode: ALWAYS_OFF
     pin: PA05
@@ -144,6 +141,9 @@ switch:
   - platform: gpio
     pin: PA00
     id: wdt_reset
+    on_turn_on:
+    - delay: 100ms
+    - switch.turn_off: wdt_reset
 
 binary_sensor:
   - platform: gpio
