@@ -1,0 +1,32 @@
+Workaround for the Arduino ringbuffer, so that it can no longer have a permanently
+inconsistent state. Implemented by removing the redunant storage of the buffer
+state in three variables.
+--- a/packages/framework-arduino-api/api/RingBuffer.h	2023-08-12 13:07:59.074806708 +0200
++++ b/packages/framework-arduino-api/api/RingBuffer.h	2023-08-11 15:35:11.847630525 +0200
+@@ -37,7 +37,6 @@
+ {
+   public:
+     uint8_t _aucBuffer[N] ;
+-    volatile int _iHead ;
+     volatile int _iTail ;
+     volatile int _numElems;
+ 
+@@ -74,17 +73,12 @@
+   // current location of the tail), we're about to overflow the buffer
+   // and so we don't write the character or advance the head.
+   if (!isFull())
+-  {
+-    _aucBuffer[_iHead] = c ;
+-    _iHead = nextIndex(_iHead);
+-    _numElems++;
+-  }
++    _aucBuffer[(_iTail + _numElems++) % N] = c ;
+ }
+ 
+ template <int N>
+ void RingBufferN<N>::clear()
+ {
+-  _iHead = 0;
+   _iTail = 0;
+   _numElems = 0;
+ }
