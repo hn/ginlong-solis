@@ -90,6 +90,9 @@ You can open [the case](solis-wifi-stick-s3-case.jpg) by pressing [the notches](
 
 There is a serial interface (LogCLI) on the PCB connected to `UART2_Log_TX` and `UART2_Log_RX` of the MCU (115200 8N1, 3.3 Volt).
 
+Update: Since end of 2022 there is a [new PCB version which contains a hardware watchdog](https://github.com/hn/ginlong-solis/issues/13#issuecomment-1636475754).
+You can recognize these new boards by the silkscreen '22.34' (which probably corresponds to the year and week of manufacture) .
+
 ### Analysis via the serial port
 
 You get a first impression when you examine the `UART2_Log` output:
