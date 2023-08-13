@@ -277,7 +277,38 @@ sensor:
     accuracy_decimals: 2
     filters:
       - multiply: 0.01
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Battery state of health (SoC)
+    device_class: battery
+    state_class: measurement
+    unit_of_measurement: "%"
+    register_type: read
+    address: 33139
+    value_type: U_WORD
+    skip_updates: 10
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Total battery charge
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 33161
+    value_type: U_DWORD
+    skip_updates: 10
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Total battery discharge
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 33165
+    value_type: U_DWORD
+    skip_updates: 10
 
+    
 text_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_master
