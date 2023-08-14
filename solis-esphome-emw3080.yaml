@@ -61,7 +61,8 @@ api:
     key: !secret api_encryption_key
 
 ota:
-  password: !secret ota_password
+# do not set ota pw until https://github.com/kuba2k2/libretiny/issues/142 is fixed
+#  password: !secret ota_password
 
 wifi:
   ssid: !secret wifi_ssid
