@@ -296,15 +296,6 @@ $ sudo apt-get install python3-pip
 $ pip3 install -U platformio # see PlatformIO docs
 $ platformio platform install https://github.com/kuba2k2/libretiny # see LibreTiny docs
 $
-$ cd .platformio
-$ # Apply workaround until https://github.com/kuba2k2/libretiny/issues/154 is fixed
-$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/libretiny-ringbuffer-workaround.diff
-$ patch -p1 < libretiny-ringbuffer-workaround.diff
-$ # Apply fix until https://github.com/kuba2k2/libretiny/issues/142 is fixed
-$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/libretiny-otapass-fix.diff
-$ patch -p1 < libretiny-otapass-fix.diff
-$ cd ..
-$
 $ git clone https://github.com/kuba2k2/libretiny-esphome
 $ cd libretiny-esphome
 $ pip3 install -r requirements.txt
@@ -313,6 +304,20 @@ $ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/solis-modbus-in
 $ mkdir common; mv solis-modbus-inv.yaml common/
 $ echo -e "wifi_ssid: foo\nwifi_password: foo\nwifi_ap_ssid: foo\nwifi_ap_password: foo\napi_encryption_key: foo\nota_password: foo" > secrets.yaml	# edit as needed
 $
+$ # Required for the installation of dependencies
+$ python3 -m esphome compile solis-esphome-emw3080.yaml
+$
+$ cd ~/.platformio
+$ # Apply workaround until https://github.com/kuba2k2/libretiny/issues/154 is fixed
+$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/libretiny-ringbuffer-workaround.diff
+$ patch -p1 < libretiny-ringbuffer-workaround.diff
+$ # Apply fix until https://github.com/kuba2k2/libretiny/issues/142 is fixed
+$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/libretiny-otapass-fix.diff
+$ patch -p1 < libretiny-otapass-fix.diff
+$ cd ../libretiny-esphome
+$
+$ # A strange, clean up and finally compile with patches
+$ python3 -m esphome clean solis-esphome-emw3080.yaml
 $ python3 -m esphome compile solis-esphome-emw3080.yaml
 ```
 
