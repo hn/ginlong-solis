@@ -316,7 +316,7 @@ $ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/libretiny-otapa
 $ patch -p1 < libretiny-otapass-fix.diff
 $ cd ../libretiny-esphome
 $
-$ # A strange, clean up and finally compile with patches
+$ # A bit strange, clean up and finally compile with patches
 $ python3 -m esphome clean solis-esphome-emw3080.yaml
 $ python3 -m esphome compile solis-esphome-emw3080.yaml
 ```
