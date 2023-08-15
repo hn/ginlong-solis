@@ -1,0 +1,9 @@
+Fixes OTA password auth by exchanging Polar SSL with Mbed-TLS
+--- a/platforms/libretiny/cores/realtek-ambz/arduino/src/lt_defs.h	2023-08-15 18:41:45.276938883 +0200
++++ b/platforms/libretiny/cores/realtek-ambz/arduino/src/lt_defs.h	2023-08-15 18:42:48.342556427 +0200
+@@ -3,4 +3,4 @@
+ #error "Don't include this file directly"
+ 
+ #define LT_ARD_HAS_SERIAL	1
+-#define LT_ARD_MD5_POLARSSL 1
++#define LT_ARD_MD5_MBEDTLS 1

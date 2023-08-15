@@ -296,10 +296,13 @@ $ sudo apt-get install python3-pip
 $ pip3 install -U platformio # see PlatformIO docs
 $ platformio platform install https://github.com/kuba2k2/libretiny # see LibreTiny docs
 $
-$ # Apply workaround until https://github.com/kuba2k2/libretiny/issues/154 is fixed
 $ cd .platformio
+$ # Apply workaround until https://github.com/kuba2k2/libretiny/issues/154 is fixed
 $ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/libretiny-ringbuffer-workaround.diff
 $ patch -p1 < libretiny-ringbuffer-workaround.diff
+$ # Apply fix until https://github.com/kuba2k2/libretiny/issues/142 is fixed
+$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/libretiny-otapass-fix.diff
+$ patch -p1 < libretiny-otapass-fix.diff
 $ cd ..
 $
 $ git clone https://github.com/kuba2k2/libretiny-esphome
