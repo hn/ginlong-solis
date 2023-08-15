@@ -298,7 +298,7 @@ $ platformio platform install https://github.com/kuba2k2/libretiny # see LibreTi
 $
 $ # Apply workaround until https://github.com/kuba2k2/libretiny/issues/154 is fixed
 $ cd .platformio
-$ wget https://raw.githubusercontent.com/hn/ginlong-solis/libretiny-ringbuffer-workaround.diff
+$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/libretiny-ringbuffer-workaround.diff
 $ patch -p1 < libretiny-ringbuffer-workaround.diff
 $ cd ..
 $
