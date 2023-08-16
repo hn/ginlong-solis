@@ -350,10 +350,6 @@ $ python3 -m esphome upload solis-esphome-emw3080.yaml --device <ipaddress>
 :warning: Warning: LibreTiny is work in progress and obviously writing to the flash memory is
 dangerous and may permanently damage your device. Be careful and keep children away.
 
-:warning: For me, this alternative firmware runs perfectly stable on the stick,
-yet this project is not for the faint-hearted, there are (at least) these challenges:
-- OTA password problem, see https://github.com/hn/ginlong-solis/issues/7#issuecomment-1561865512 and https://github.com/kuba2k2/libretiny/issues/142
-
 :warning: It is recommended to use a [good](https://zeptobars.com/en/read/FTDI-FT232RL-real-vs-fake-supereal) FTDI FT232RL USB serial adapter
 for dumping and flashing. Other adapters may have [problems with the required high transfer rate](https://github.com/hn/ginlong-solis/issues/9#issuecomment-1604134701).
 
