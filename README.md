@@ -399,6 +399,8 @@ but it now seems to me to have been superseded by the official versions from Sol
 
 ## Credits
 
+- [kuba2k2](https://github.com/kuba2k2) for LibreTiny und for patiently helping with problems and patches.
+
 - [jimmyburnworld](https://github.com/jimmyburnworld/) implemented [a similiar approach for Solis ESINV inverters](https://github.com/jimmyburnworld/SolisModbus-MQTT)
   and [MalteSchm](https://github.com/MalteSchm/) updated it [for Solis INV inverters](https://github.com/MalteSchm/SolisModbus-MQTT).
 
