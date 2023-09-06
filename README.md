@@ -12,6 +12,8 @@ Quick start, you'll find here:
 
 The ESPhome solution also has some advanced features such as limiting the inverter output power, synchronising the inverter time via NTP and more.
 
+If in doubt, I recommend choosing the Solis S3 stick with the alternative firmware. You can currently buy the Solis S3 stick for about 20 € and get a rugged, waterproof case, external antenna, etc. For this price you can not buy and assemble the individual parts.
+
 ![Solis ESPhome sample screen](solis-esphome.png "Solis ESPhome Homeassistant")
 
 ## ESP8266 Solis interface
