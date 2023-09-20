@@ -75,7 +75,7 @@ The stick hardware is based on [MXCHIP's](https://en.mxchip.com/) [EMW3080-E MCU
 Datasheet: [V2.2](https://m.eleparts.co.kr/data/_gextends/good-pdf/202103/good-pdf-10094810-2.pdf).
 
 :raised_hand: Contrary to all available datasheets, the EMW3080-E (at least the one in my Solis S3 stick)
-does *not* have 2MB flash installed, but an [8MB flash module](https://github.com/kuba2k2/libretiny/issues/91#issuecomment-1480153212).
+does *not* have 2MB flash installed, but an [8MB flash module](https://github.com/libretiny-eu/libretiny/issues/91#issuecomment-1480153212).
 
 The EMW3080 is some kind of relabeled ([call it the same family](https://github.com/alibaba/AliOS-Things/blob/rel_3.0.0/board/mk3080/aos.mk))
 [RTL8710BN](https://www.realtek.com/en/products/communications-network-ics/item/rtl8710bn) MCU (Ameba-Z series).
@@ -286,7 +286,7 @@ permanently damage your device.
 
 ### Replacing the main application
 
-Thanks to the fine folks at [LibreTiny](https://github.com/kuba2k2/libretiny), arduino-compatible cores
+Thanks to the fine folks at [LibreTiny](https://github.com/libretiny-eu/libretiny), arduino-compatible cores
 for RTL8710B chips are available. And there is even a corresponding [ESPhome port](https://docs.libretiny.eu/docs/projects/esphome/).
 
 With [solis-esphome-emw3080.yaml](solis-esphome-emw3080.yaml) you can read out all
@@ -296,9 +296,9 @@ Setup the environment and compile the ESPhome firmware for the S3 stick as follo
 ```
 $ sudo apt-get install python3-pip
 $ pip3 install -U platformio # see PlatformIO docs
-$ platformio platform install https://github.com/kuba2k2/libretiny # see LibreTiny docs
+$ platformio platform install https://github.com/libretiny-eu/libretiny # see LibreTiny docs
 $
-$ git clone https://github.com/kuba2k2/libretiny-esphome
+$ git clone https://github.com/libretiny-eu/libretiny-esphome
 $ cd libretiny-esphome
 $ pip3 install -r requirements.txt
 $ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/solis-esphome-emw3080.yaml	# edit timezone and inverter type as needed
@@ -310,10 +310,10 @@ $ # Required for the installation of dependencies
 $ python3 -m esphome compile solis-esphome-emw3080.yaml
 $
 $ cd ~/.platformio
-$ # Apply workaround until https://github.com/kuba2k2/libretiny/issues/154 is fixed
+$ # Apply workaround until https://github.com/libretiny-eu/libretiny/issues/154 is fixed
 $ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/libretiny-ringbuffer-workaround.diff
 $ patch -p1 < libretiny-ringbuffer-workaround.diff
-$ # Apply fix until https://github.com/kuba2k2/libretiny/issues/142 is fixed
+$ # Apply fix until https://github.com/libretiny-eu/libretiny/issues/142 is fixed
 $ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/libretiny-otapass-fix.diff
 $ patch -p1 < libretiny-otapass-fix.diff
 $ cd ../libretiny-esphome
@@ -362,7 +362,7 @@ However, due to the limited debugging and patching possibilities, it may not (ye
 :bulb: Matching the EMW3080 datasheet, one should actually use the `generic-rtl8710bn-2mb-788k` board profile
 for LibreTiny. But since the Solis WiFi stick has a special 8MB version of the MCU with an OTA address of 0x100000, the
 not exactly matching profile `generic-rtl8710bx-4mb-980k` is used here, manually [setting the MCU type and frequency in
-the PlatformIO options to the correct value](https://github.com/kuba2k2/libretiny/issues/91#issuecomment-1476792864).
+the PlatformIO options to the correct value](https://github.com/libretiny-eu/libretiny/issues/91#issuecomment-1476792864).
 
 ## Solis Modbus Register Map and RS-485 documentation
 
