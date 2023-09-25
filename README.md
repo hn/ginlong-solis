@@ -315,9 +315,6 @@ $ cd ~/.platformio
 $ # Apply workaround until https://github.com/libretiny-eu/libretiny/issues/154 is fixed
 $ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/libretiny-ringbuffer-workaround.diff
 $ patch -p1 < libretiny-ringbuffer-workaround.diff
-$ # Apply fix until https://github.com/libretiny-eu/libretiny/issues/142 is fixed
-$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/libretiny-otapass-fix.diff
-$ patch -p1 < libretiny-otapass-fix.diff
 $ cd ../libretiny-esphome
 $
 $ # A bit strange, clean up and finally compile with patches
@@ -351,7 +348,10 @@ For subsequent uploads you can simply OTA-upload the firmware:
 $ python3 -m esphome upload solis-esphome-emw3080.yaml --device <ipaddress>
 ```
 
-:warning: Warning: LibreTiny is work in progress and obviously writing to the flash memory is
+:warning: Warning: Make sure to use at least LibreTiny version 1.4.1. With older
+versions you'll experience problems.
+
+:warning: Warning: Obviously writing to the flash memory is
 dangerous and may permanently damage your device. Be careful and keep children away.
 
 :warning: It is recommended to use a [good](https://zeptobars.com/en/read/FTDI-FT232RL-real-vs-fake-supereal) FTDI FT232RL USB serial adapter
