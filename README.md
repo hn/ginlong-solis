@@ -24,6 +24,8 @@ You need a proprietary [Exceedconn](http://www.exceedconn.com/) [EC04681-2014-BF
 
 ![Solis ESP8266 wiring](solis-esp8266-wiring.jpg "Solis ESP8266 wiring")
 
+A bit strange, you have to [connect the RX pin of the `HW-0519` adapter to the RX pin of the ESP](https://arduino.stackexchange.com/a/83668) (and the TX pin to the TX pin), so no RX-TX-crossover like normal.
+
 ### Software (ESPhome)
 
 Especially recommended if you use Home Assistant, [solis-esphome-esp8266.yaml](solis-esphome-esp8266.yaml) is an ready-to-use
