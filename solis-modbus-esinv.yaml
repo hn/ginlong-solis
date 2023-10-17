@@ -279,7 +279,7 @@ sensor:
       - multiply: 0.01
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Battery state of health (SoC)
+    name: Battery state of charge (SoC)
     device_class: battery
     state_class: measurement
     unit_of_measurement: "%"
