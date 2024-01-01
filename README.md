@@ -14,6 +14,10 @@ The ESPhome solution also has some advanced features such as limiting the invert
 
 If in doubt, I recommend choosing the Solis S3 stick with the alternative firmware. You can currently buy the Solis S3 stick for about 20 € and get a rugged, waterproof case, external antenna, etc. For this price you can not buy and assemble the individual parts.
 
+Please do me a favor: :thumbsup: If you use any information or code you find here, please link back to this page.
+:star: Also, please consider to star this project. I really like to keep track of who is using this to do creative things, especially if you are from other parts of the world.
+:smiley: You are welcome to open an issue to report on your personal success project and share it with others.
+
 ![Solis ESPhome sample screen](solis-esphome.png "Solis ESPhome Homeassistant")
 
 ## ESP8266 Solis interface
