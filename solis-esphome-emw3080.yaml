@@ -38,6 +38,8 @@ esphome:
   platformio_options:
     board_build.mcu: rtl8710bn
     board_build.f_cpu: 125000000L
+    platform_packages:
+      - framework-arduino-api @ https://github.com/hn/ArduinoCore-API#RingBufferFix
 
 rtl87xx:
   board: generic-rtl8710bx-4mb-980k
