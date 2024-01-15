@@ -33,7 +33,6 @@
 esphome:
   name: solis-esp8266
   friendly_name: Ginlong Solis Inverter
-  name_add_mac_suffix: true
 
 esp8266:
   board: d1_mini
