@@ -293,67 +293,37 @@ permanently damage your device.
 ### Replacing the main application
 
 Thanks to the fine folks at [LibreTiny](https://github.com/libretiny-eu/libretiny), arduino-compatible cores
-for RTL8710B chips are available. And there is even a corresponding [ESPHome port](https://docs.libretiny.eu/docs/projects/esphome/).
-
+for RTL8710B chips are available. And even better, LibreTiny is [now part of ESPHome](https://esphome.io/changelog/2023.9.0.html).
 With [solis-esphome-emw3080.yaml](solis-esphome-emw3080.yaml) you can read out all
 relevant status and statistics data from your Solis inverter and push it to Home Assistant.
-Setup the environment and compile the ESPHome firmware for the S3 stick as follows:
 
-```
-$ sudo apt-get install python3-pip
-$ pip3 install -U platformio # see PlatformIO docs
-$ platformio platform install https://github.com/libretiny-eu/libretiny # see LibreTiny docs
-$
-$ git clone https://github.com/libretiny-eu/libretiny-esphome
-$ cd libretiny-esphome
-$ pip3 install -r requirements.txt
-$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/solis-esphome-emw3080.yaml	# edit timezone and inverter type as needed
-$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/solis-modbus-inv.yaml	# change to 'esinv' depending on your inverter type
-$ mkdir common; mv solis-modbus-inv.yaml common/
-$ echo -e "wifi_ssid: foo\nwifi_password: foo\nwifi_ap_ssid: foo\nwifi_ap_password: foo\napi_encryption_key: foo\nota_password: foo" > secrets.yaml	# edit as needed
-$
-$ # Required for the installation of dependencies
-$ python3 -m esphome compile solis-esphome-emw3080.yaml
-$
-$ cd ~/.platformio
-$ # Apply workaround until https://github.com/libretiny-eu/libretiny/issues/154 is fixed
-$ wget https://raw.githubusercontent.com/hn/ginlong-solis/master/libretiny-ringbuffer-workaround.diff
-$ patch -p1 < libretiny-ringbuffer-workaround.diff
-$ cd ../libretiny-esphome
-$
-$ # A bit strange, clean up and finally compile with patches
-$ python3 -m esphome clean solis-esphome-emw3080.yaml
-$ python3 -m esphome compile solis-esphome-emw3080.yaml
-```
+Install the ESPHome firmware for the S3 stick as follows:
 
-Set the MCU to `UART boot mode` ([pull TX pin low during boot](https://github.com/hn/ginlong-solis/issues/9) -- you do not need to solder,
-just [inserting some jumper wires](https://github.com/hn/ginlong-solis/issues/9#issuecomment-1595643051) is sufficient) and backup the stock firmware
-(you have to use rtltool since ltchiptool does not allow to read more than 2MB for this MCU type):
+1. Install the [ESPHome dashboard](https://esphome.io/guides/getting_started_hassio.html#installing-esphome-dashboard) for Home Assistant (at least version 2023.9.0).
+1. If you not already have one, add a `secrets.yaml` to the ESPHome addon, containing at least `wifi_ssid`, `wifi_password`, `wifi_ap_ssid`, `wifi_ap_password`, `api_encryption_key` and `ota_password`.
+1. Add [solis-esphome-emw3080.yaml](solis-esphome-emw3080.yaml) to the ESPHome addon.
+1. Depending on your inverter type, copy one of [solis-modbus-inv.yaml](solis-modbus-inv.yaml) or [solis-modbus-esinv.yaml](solis-modbus-esinv.yaml) as well.
+1. Within `solis-esphome-emw3080.yaml` edit timezone and inverter type (`include` statement within `packages` section).
+1. Click the three-dots button, then "Install" and "Manual Download".
+1. Wait for the compilation process to finish.
+1. Download "OTA1 XIP image", then click "Download" again (bottom right) and download "OTA2 XIP image" as well.
+1. Set the MCU to `UART boot mode` ([pull TX pin low during boot](https://github.com/hn/ginlong-solis/issues/9) -- you do not need to solder,
+   just [inserting some jumper wires](https://github.com/hn/ginlong-solis/issues/9#issuecomment-1595643051) is sufficient) and backup the stock firmware
+   (you have to use rtltool since ltchiptool does not allow to read more than 2MB for this MCU type):
+   ```
+   $ python2 ./rtltool.py -p /dev/ttyUSB0 rf 0x8000000 0x800000 solis-s3-firmware-1012f.bin
+   ```
+1. Flashing the ESPHome image (replacing 2ndboot and old main app altogether) is as simple as
+   ```
+   $ python2 ./rtltool2.py -p /dev/ttyUSB0 wf 0xb000 solis-emw3080-0x00B000.bin
+   $ python2 ./rtltool2.py -p /dev/ttyUSB0 wf 0x100000 solis-emw3080-0x100000.bin
 
-```
-$ python2 ./rtltool.py -p /dev/ttyUSB0 rf 0x8000000 0x800000 solis-s3-firmware-1012f.bin
-```
+   # Better option, currently not working:
+   # $ python3 -m esphome upload solis-esphome-emw3080.yaml --device /dev/ttyUSB0 --file solis-emw3080.uf2
+   ```
 
-Flashing the ESPHome image (replacing 2ndboot and old main app altogether) is as simple as
-
-```
-python2 ./rtltool2.py -p /dev/ttyUSB0 wf 0xb000 ./.esphome/build/solis-emw3080/.pioenvs/solis-emw3080/image_0x00B000.ota1.bin
-python2 ./rtltool2.py -p /dev/ttyUSB0 wf 0x100000 ./.esphome/build/solis-emw3080/.pioenvs/solis-emw3080/image_0x100000.ota2.bin
-
-# Better option, currently not working:
-# $ python3 -m esphome upload solis-esphome-emw3080.yaml --device /dev/ttyUSB0
-```
-
-After flashing, you can reconnect the S3 WiFi stick to the inverter and
-the status data will magically (add integration -> ESPHome -> host=\<ipaddress of WiFi stick\>) appear in Home Assistant.
-For subsequent uploads you can simply OTA-upload the firmware:
-
-```
-$ python3 -m esphome upload solis-esphome-emw3080.yaml --device <ipaddress>
-```
-
-:warning: Warning: Make sure to use at least LibreTiny version 1.4.1. With older
-versions you'll experience problems.
+After flashing, you can reconnect the S3 WiFi stick to the inverter and the status data will magically appear in Home Assistant.
+For subsequent updates you can simply OTA-upload the firmware via the ESPHome addon.
 
 :warning: Warning: Obviously writing to the flash memory is
 dangerous and may permanently damage your device. Be careful and keep children away.
@@ -361,9 +331,8 @@ dangerous and may permanently damage your device. Be careful and keep children a
 :warning: It is recommended to use a [good](https://zeptobars.com/en/read/FTDI-FT232RL-real-vs-fake-supereal) FTDI FT232RL USB serial adapter
 for dumping and flashing. Other adapters may have [problems with the required high transfer rate](https://github.com/hn/ginlong-solis/issues/9#issuecomment-1604134701).
 
-:bulb: There is also a [LibreTiny ESPHome addon for Home Assistant](https://github.com/libretiny-eu/esphome-hass-addon) available. This is
-probably a more convienient way to compile and upload the replacement firmware.
-However, due to the limited debugging and patching possibilities, it may not (yet) be a suitable approach for all use cases.
+:bulb: This integration uses a [patched](libretiny-ringbuffer-workaround.diff) version of
+the [ArduinoCore-API](https://github.com/hn/ArduinoCore-API). This workaround is necessary until https://github.com/libretiny-eu/libretiny/issues/154 is fixed.
 
 :bulb: Matching the EMW3080 datasheet, one should actually use the `generic-rtl8710bn-2mb-788k` board profile
 for LibreTiny. But since the Solis WiFi stick has a special 8MB version of the MCU with an OTA address of 0x100000, the
