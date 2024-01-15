@@ -5,12 +5,12 @@
 Almost all of their products have an [Modbus](https://en.wikipedia.org/wiki/Modbus) [RS-485](https://en.wikipedia.org/wiki/RS-485) interface for reading live status and statistics.
 
 Quick start, you'll find here:
-- [An ESPhome solution to integrate your inverter into Home Assistant, using an ESP8266](#software-esphome)
-- [An ESPhome solution to integrate your inverter into Home Assistant, by replacing the firmware of the Solis S3 WiFi stick](#replacing-the-main-application)
+- [An ESPHome solution to integrate your inverter into Home Assistant, using an ESP8266](#software-esphome)
+- [An ESPHome solution to integrate your inverter into Home Assistant, by replacing the firmware of the Solis S3 WiFi stick](#replacing-the-main-application)
 - [An Arduino solution to push data from your inverter to InfluxDB, using an ESP8266](#software-arduino)
 - [A wiring diagram for connecting the inverter to an ESP8266 via ModBus/RS485](#hardware)
 
-The ESPhome solution also has some advanced features such as limiting the inverter output power, synchronising the inverter time via NTP and more.
+The ESPHome solution also has some advanced features such as limiting the inverter output power, synchronising the inverter time via NTP and more.
 
 If in doubt, I recommend choosing the Solis S3 stick with the alternative firmware. You can currently buy the Solis S3 stick for about 20 € and get a rugged, waterproof case, external antenna, etc. For this price you can not buy and assemble the individual parts.
 
@@ -18,7 +18,7 @@ Please do me a favor: :thumbsup: If you use any information or code you find her
 :star: Also, please consider to star this project. I really like to keep track of who is using this to do creative things, especially if you are from other parts of the world.
 :smiley: You are welcome to open an issue to report on your personal success project and share it with others.
 
-![Solis ESPhome sample screen](solis-esphome.png "Solis ESPhome Homeassistant")
+![Solis ESPHome sample screen](solis-esphome.png "Solis ESPHome Homeassistant")
 
 ## ESP8266 Solis interface
 
@@ -30,10 +30,10 @@ You need a proprietary [Exceedconn](http://www.exceedconn.com/) [EC04681-2014-BF
 
 A bit strange, you have to [connect the RX pin of the `HW-0519` adapter to the RX pin of the ESP](https://arduino.stackexchange.com/a/83668) (and the TX pin to the TX pin), so no RX-TX-crossover like normal.
 
-### Software (ESPhome)
+### Software (ESPHome)
 
 Especially recommended if you use Home Assistant, [solis-esphome-esp8266.yaml](solis-esphome-esp8266.yaml) is an ready-to-use
-configuration file for [ESPhome](https://esphome.io/), using an ESP8266. With the [ESPhome dashboard](https://esphome.io/guides/getting_started_hassio.html)
+configuration file for [ESPHome](https://esphome.io/), using an ESP8266. With the [ESPHome dashboard](https://esphome.io/guides/getting_started_hassio.html)
 you can easily set up your system with just a few clicks via a user-friendly web interface.
 
 ### Software (Arduino)
@@ -293,11 +293,11 @@ permanently damage your device.
 ### Replacing the main application
 
 Thanks to the fine folks at [LibreTiny](https://github.com/libretiny-eu/libretiny), arduino-compatible cores
-for RTL8710B chips are available. And there is even a corresponding [ESPhome port](https://docs.libretiny.eu/docs/projects/esphome/).
+for RTL8710B chips are available. And there is even a corresponding [ESPHome port](https://docs.libretiny.eu/docs/projects/esphome/).
 
 With [solis-esphome-emw3080.yaml](solis-esphome-emw3080.yaml) you can read out all
 relevant status and statistics data from your Solis inverter and push it to Home Assistant.
-Setup the environment and compile the ESPhome firmware for the S3 stick as follows:
+Setup the environment and compile the ESPHome firmware for the S3 stick as follows:
 
 ```
 $ sudo apt-get install python3-pip
@@ -334,7 +334,7 @@ just [inserting some jumper wires](https://github.com/hn/ginlong-solis/issues/9#
 $ python2 ./rtltool.py -p /dev/ttyUSB0 rf 0x8000000 0x800000 solis-s3-firmware-1012f.bin
 ```
 
-Flashing the ESPhome image (replacing 2ndboot and old main app altogether) is as simple as
+Flashing the ESPHome image (replacing 2ndboot and old main app altogether) is as simple as
 
 ```
 python2 ./rtltool2.py -p /dev/ttyUSB0 wf 0xb000 ./.esphome/build/solis-emw3080/.pioenvs/solis-emw3080/image_0x00B000.ota1.bin
@@ -345,7 +345,7 @@ python2 ./rtltool2.py -p /dev/ttyUSB0 wf 0x100000 ./.esphome/build/solis-emw3080
 ```
 
 After flashing, you can reconnect the S3 WiFi stick to the inverter and
-the status data will magically (add integration -> ESPhome -> host=\<ipaddress of WiFi stick\>) appear in Home Assistant.
+the status data will magically (add integration -> ESPHome -> host=\<ipaddress of WiFi stick\>) appear in Home Assistant.
 For subsequent uploads you can simply OTA-upload the firmware:
 
 ```
@@ -361,7 +361,7 @@ dangerous and may permanently damage your device. Be careful and keep children a
 :warning: It is recommended to use a [good](https://zeptobars.com/en/read/FTDI-FT232RL-real-vs-fake-supereal) FTDI FT232RL USB serial adapter
 for dumping and flashing. Other adapters may have [problems with the required high transfer rate](https://github.com/hn/ginlong-solis/issues/9#issuecomment-1604134701).
 
-:bulb: There is also a [LibreTiny ESPhome addon for Home Assistant](https://github.com/libretiny-eu/esphome-hass-addon) available. This is
+:bulb: There is also a [LibreTiny ESPHome addon for Home Assistant](https://github.com/libretiny-eu/esphome-hass-addon) available. This is
 probably a more convienient way to compile and upload the replacement firmware.
 However, due to the limited debugging and patching possibilities, it may not (yet) be a suitable approach for all use cases.
 
