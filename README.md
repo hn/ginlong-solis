@@ -166,9 +166,8 @@ Open xModem Transfer on Log UART...
 ```
 
 When the device is in this mode, one can download the firmware using
-[RTLtool](https://github.com/pvvx/RTL0B_SDK/blob/master/mkb/rtltool.py) (depends on Python2,
-there is also a [Python3 compatible version](https://github.com/libretiny/ltchiptool/tree/master/ltchiptool/soc/ambz/util)
-available, which unfortunately seems to have a few issues):
+[RTLtool](https://github.com/pvvx/RTL0B_SDK/blob/master/mkb/rtltool.py) (depends on Python2)
+(Update: [ltchiptool](https://github.com/libretiny-eu/ltchiptool) is now a better option):
 
 ```
 $ python2 ./rtltool.py -p /dev/ttyUSB0 gf
@@ -305,21 +304,23 @@ Install the ESPHome firmware for the S3 stick as follows:
 1. Depending on your inverter type, copy one of [solis-modbus-inv.yaml](solis-modbus-inv.yaml) or [solis-modbus-esinv.yaml](solis-modbus-esinv.yaml) as well.
 1. Within `solis-esphome-emw3080.yaml` edit timezone and inverter type (`include` statement within `packages` section).
 1. Click the three-dots button, then "Install" and "Manual Download".
-1. Wait for the compilation process to finish.
-1. Download "OTA1 XIP image", then click "Download" again (bottom right) and download "OTA2 XIP image" as well.
+1. Wait for the compilation process to finish and download the "UF2 package".
 1. Set the MCU to `UART boot mode` ([pull TX pin low during boot](https://github.com/hn/ginlong-solis/issues/9) -- you do not need to solder,
-   just [inserting some jumper wires](https://github.com/hn/ginlong-solis/issues/9#issuecomment-1595643051) is sufficient) and backup the stock firmware
-   (you have to use rtltool since ltchiptool does not allow to read more than 2MB for this MCU type):
+   just [inserting some jumper wires](https://github.com/hn/ginlong-solis/issues/9#issuecomment-1595643051) is sufficient).
+   Make sure to use a 3.3V serial adapter.
+1. Backup the stock firmware with [ltchiptool](https://github.com/libretiny-eu/ltchiptool) (also available as a Win GUI version):
    ```
-   $ python2 ./rtltool.py -p /dev/ttyUSB0 rf 0x8000000 0x800000 solis-s3-firmware-1012f.bin
+   $ ltchiptool -V
+   ltchiptool v4.10.1 # use at least this version
+   $ ltchiptool flash read -d /dev/ttyUSB0 RTL8710B solis-s3-firmware-1012f.bin
+   I: Connecting to 'Realtek AmebaZ' on /dev/ttyUSB0 @ 1500000
+   I: Reading Flash (8 MiB)
+   $ ls -l solis-s3-firmware-1012f.bin
+   8388608 # file size should be exactly this, otherwise something has gone wrong
    ```
 1. Flashing the ESPHome image (replacing 2ndboot and old main app altogether) is as simple as
    ```
-   $ python2 ./rtltool2.py -p /dev/ttyUSB0 wf 0xb000 solis-emw3080-0x00B000.bin
-   $ python2 ./rtltool2.py -p /dev/ttyUSB0 wf 0x100000 solis-emw3080-0x100000.bin
-
-   # Better option, currently not working:
-   # $ python3 -m esphome upload solis-esphome-emw3080.yaml --device /dev/ttyUSB0 --file solis-emw3080.uf2
+   $ ltchiptool flash write -d /dev/ttyUSB0 solis-emw3080.uf2
    ```
 
 After flashing, you can reconnect the S3 WiFi stick to the inverter and the status data will magically appear in Home Assistant.
@@ -330,6 +331,7 @@ dangerous and may permanently damage your device. Be careful and keep children a
 
 :warning: It is recommended to use a [good](https://zeptobars.com/en/read/FTDI-FT232RL-real-vs-fake-supereal) FTDI FT232RL USB serial adapter
 for dumping and flashing. Other adapters may have [problems with the required high transfer rate](https://github.com/hn/ginlong-solis/issues/9#issuecomment-1604134701).
+In rare cases, the USB port does not supply enough power to flash the stick, then simply try another USB port.
 
 :bulb: This integration uses a [patched](libretiny-ringbuffer-workaround.diff) version of
 the [ArduinoCore-API](https://github.com/hn/ArduinoCore-API). This workaround is necessary until https://github.com/libretiny-eu/libretiny/issues/154 is fixed.
