@@ -3,15 +3,12 @@
 #
 # The hardware described in this file (MCU and GPIO) corresponds to that of the Solis S3 WiFi stick.
 #
-# (C) 2023 Hajo Noerenberg
+# (C) 2023-2024 Hajo Noerenberg
 #
 # Usage:
 #   1. Depending on your type of inverter (INV or ESINV),
 #      include modbus definition in 'packages' section below 
-#   2. Correctly set timezone in the 'time' section below,
-#      as the time of your inverter is set via NTP.
-#      https://esphome.io/components/time/index.html
-#   3. Compile and upload
+#   2. Compile and upload
 #      https://docs.libretiny.eu/docs/projects/esphome/#build-upload
 #
 #
@@ -53,9 +50,8 @@ packages:
   #device_base: !include common/solis-modbus-esinv.yaml
 
 time:
-  - platform: sntp
-    id: sntp_time
-    timezone: "CET-1CEST,M3.5.0,M10.5.0/3"
+  - platform: homeassistant
+    id: network_time
 
 api:
   encryption:

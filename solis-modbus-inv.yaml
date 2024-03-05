@@ -375,7 +375,7 @@ text_sensor:
       i_t = mktime(&i_tm);
       ESP_LOGI("SyncInverterRTC", "Inverter RTC is %02d:%02d:%02d %04d-%02d-%02d",
         i_tm.tm_hour, i_tm.tm_min, i_tm.tm_sec, i_tm.tm_year + 1900, i_tm.tm_mon + 1, i_tm.tm_mday);
-      auto s_espt = id(sntp_time).now();
+      auto s_espt = id(network_time).now();
       if (s_espt.is_valid()) {
         double deviation = difftime(i_t, s_espt.timestamp);
         if (abs(deviation) > 42) {
