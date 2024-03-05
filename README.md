@@ -307,7 +307,7 @@ Install the ESPHome firmware for the S3 stick as follows:
 1. Wait for the compilation process to finish and download the "UF2 package".
 1. Set the MCU to `UART boot mode` ([pull TX pin low during boot](https://github.com/hn/ginlong-solis/issues/9) -- you do not need to solder,
    just [inserting some jumper wires](https://github.com/hn/ginlong-solis/issues/9#issuecomment-1595643051) is sufficient).
-   Make sure to use a 3.3V serial adapter.
+   Make sure your serial adapter uses 3.3V voltage, read the notes below carefully about possible challenges with these adapters.
 1. Backup the stock firmware with [ltchiptool](https://github.com/libretiny-eu/ltchiptool) (also available as a Win GUI version):
    ```
    $ ltchiptool -V
@@ -318,7 +318,7 @@ Install the ESPHome firmware for the S3 stick as follows:
    $ ls -l solis-s3-firmware-1012f.bin
    8388608 # file size should be exactly this, otherwise something has gone wrong
    ```
-1. Flashing the ESPHome image (replacing 2ndboot and old main app altogether) is as simple as
+1. Flashing the ESPHome image (replacing stock AliOS 2ndboot and main app altogether) is as simple as
    ```
    $ ltchiptool flash write -d /dev/ttyUSB0 solis-emw3080.uf2
    ```
@@ -331,7 +331,7 @@ dangerous and may permanently damage your device. Be careful and keep children a
 
 :warning: It is recommended to use a [good](https://zeptobars.com/en/read/FTDI-FT232RL-real-vs-fake-supereal) FTDI FT232RL USB serial adapter
 for dumping and flashing. Other adapters may have [problems with the required high transfer rate](https://github.com/hn/ginlong-solis/issues/9#issuecomment-1604134701).
-In rare cases, the USB port does not supply enough power to flash the stick, then simply try another USB port.
+In some cases, the serial adapter or USB port does not supply enough power to flash the stick, then try a different adapter or USB port.
 
 :bulb: This integration uses a [patched](libretiny-ringbuffer-workaround.diff) version of
 the [ArduinoCore-API](https://github.com/hn/ArduinoCore-API). This workaround is necessary until https://github.com/libretiny-eu/libretiny/issues/154 is fixed.
