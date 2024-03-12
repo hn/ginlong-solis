@@ -351,7 +351,7 @@ and act according to the first two _decimal_ places of the read value
 (the documentation says: "high 8 bit means protocol version, low 8 bit means inverter
 model", but I think this is only correct if you interpret it as some kind of 'decimal bits'):
 
-- `10`: see [RS485_MODBUS (INV-3000IDEPM-36000ID) inverter protocol](https://ginlongsolis.freshdesk.com/helpdesk/attachments/36112313359)
+- `10`: see [RS485_MODBUS (INV-3000IDEPM-36000ID) inverter protocol](https://api.library.loxone.com/downloader/file/1197/RS485_MODBUS%20Communication%20Protocol_Solis%20Inverters.pdf)
 - `20`: see [RS485_MODBUS (ESINV-33000ID) energy storage inverter protocol](https://forum.iobroker.net/assets/uploads/files/1619515984065-_without-control-hybrid-en-2020.9.15_rs485_modbus-esinv-33000id-hybrid-inverter.pdf)
 
 For the `INV` 3xxx Register Map, you'll need to subtract offset 1 from addresses
