@@ -123,7 +123,7 @@ sensor:
     unit_of_measurement: W
     register_type: read
     address: 33079
-    value_type: U_DWORD
+    value_type: S_DWORD
     on_value:
       then:
         - script.execute: modbus_activity
