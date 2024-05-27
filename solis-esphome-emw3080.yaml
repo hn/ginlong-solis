@@ -67,7 +67,9 @@ wifi:
     ssid: "Ginlong Solis Inverter"
     password: !secret wifi_ap_password
 
-captive_portal:
+# Disabled for ESPHome 2024.5.0+ to save memory,
+# see https://github.com/hn/ginlong-solis/issues/32#issuecomment-2132763107
+# captive_portal:
 
 interval:
   - interval: 1s
