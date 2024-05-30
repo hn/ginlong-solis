@@ -57,85 +57,105 @@ number:
 binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Operation status Normal
+    name: Operation status Normal Operation
+    device_class: problem
     register_type: read
     address: 33121
-    bitmask: 0x0001
+    bitmask: 0x0001 # bit 00
+    filters:
+      invert:
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Operation status Initializing
     register_type: read
     address: 33121
-    bitmask: 0x0002
+    bitmask: 0x0002 # bit 01
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Operation status Grid off
+    name: Operation status Controlled turning OFF
     device_class: problem
     register_type: read
     address: 33121
-    bitmask: 0x0004
+    bitmask: 0x0004 # bit 02
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Operation status Fault to stop
+    name: Operation status Fault leads to turning OFF
     device_class: problem
     register_type: read
     address: 33121
-    bitmask: 0x0008
+    bitmask: 0x0008 # bit 03
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Operation status Standby
+    name: Operation status Stand-by
     register_type: read
     address: 33121
-    bitmask: 0x0010
+    bitmask: 0x0010 # bit 04
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Operation status Derating
-    register_type: read
-    address: 33121
-    bitmask: 0x0020
-  - platform: modbus_controller
-    modbus_controller_id: modbus_master
-    name: Operation status Limitating
-    register_type: read
-    address: 33121
-    bitmask: 0x0040
-  - platform: modbus_controller
-    modbus_controller_id: modbus_master
-    name: Operation status Grid surge
+    name: Operation status Limited Operation
     device_class: problem
     register_type: read
     address: 33121
-    bitmask: 0x0100
+    bitmask: 0x0020 # bit 05
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Operation status Fan fault
+    name: Operation status Limited Operation external
     device_class: problem
     register_type: read
     address: 33121
-    bitmask: 0x0200
+    bitmask: 0x0040 # bit 06
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Operation status Backup overload
+    device_class: problem
+    register_type: read
+    address: 33121
+    bitmask: 0x0080 # bit 07
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Operation status Load fault
+    device_class: problem
+    register_type: read
+    address: 33121
+    bitmask: 0x0100 # bit 08
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Operation status Grid fault
+    device_class: problem
+    register_type: read
+    address: 33121
+    bitmask: 0x0200 # bit 09
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Operation status Battery fault
+    device_class: problem
+    register_type: read
+    address: 33121
+    bitmask: 0x0400 # bit 10
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Operation status Grid Surge Warn
+    device_class: problem
+    register_type: read
+    address: 33121
+    bitmask: 0x1000 # bit 12
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Operation status Fan Fault Warn
+    device_class: problem
+    register_type: read
+    address: 33121
+    bitmask: 0x2000 # bit 13
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Battery current direction
+    device_class: battery_charging # on means charging, off means not charging
+    register_type: read
+    address: 33135
+    filters:
+      - invert: # modbus returns 0 for charging, 1 for discharging
 
 sensor:
-  - platform: modbus_controller
-    modbus_controller_id: modbus_master
-    name: Active Power
-    device_class: power
-    state_class: measurement
-    unit_of_measurement: W
-    register_type: read
-    address: 33079
-    value_type: S_DWORD
-    on_value:
-      then:
-        - script.execute: modbus_activity
-  - platform: modbus_controller
-    modbus_controller_id: modbus_master
-    name: Total DC output power
-    device_class: power
-    state_class: measurement
-    unit_of_measurement: W
-    register_type: read
-    address: 33057
-    value_type: U_DWORD
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Total energy
@@ -243,6 +263,18 @@ sensor:
       - multiply: 0.1
   - platform: modbus_controller
     modbus_controller_id: modbus_master
+    name: Total DC output power
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
+    register_type: read
+    address: 33057
+    value_type: U_DWORD
+    on_value:
+      then:
+        - script.execute: modbus_activity
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
     name: AC voltage
     device_class: voltage
     state_class: measurement
@@ -253,6 +285,36 @@ sensor:
     accuracy_decimals: 1
     filters:
       - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Active power
+    device_class: power
+    state_class: measurement
+    disabled_by_default: true # Do not fill recorder when not needed
+    unit_of_measurement: W
+    register_type: read
+    address: 33079
+    value_type: S_DWORD
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Reactive power
+    device_class: reactive_power
+    state_class: measurement
+    disabled_by_default: true # Do not fill recorder when not needed
+    unit_of_measurement: var
+    register_type: read
+    address: 33081
+    value_type: S_DWORD
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Apparent power
+    device_class: apparent_power
+    state_class: measurement
+    disabled_by_default: true # Do not fill recorder when not needed
+    unit_of_measurement: VA
+    register_type: read
+    address: 33083
+    value_type: S_DWORD
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Inverter temperature
@@ -279,6 +341,32 @@ sensor:
       - multiply: 0.01
   - platform: modbus_controller
     modbus_controller_id: modbus_master
+    name: Battery voltage
+    device_class: voltage
+    state_class: measurement
+    disabled_by_default: true # Do not fill recorder when not needed
+    unit_of_measurement: V
+    register_type: read
+    address: 33133
+    value_type: U_WORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Battery current
+    device_class: current
+    state_class: measurement
+    disabled_by_default: true # Do not fill recorder when not needed
+    unit_of_measurement: A
+    register_type: read
+    address: 33134
+    value_type: S_WORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
     name: Battery state of charge (SoC)
     device_class: battery
     state_class: measurement
@@ -287,6 +375,74 @@ sensor:
     address: 33139
     value_type: U_WORD
     skip_updates: 10
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Battery state of health (SoH)
+    device_class: battery
+    state_class: measurement
+    unit_of_measurement: "%"
+    register_type: read
+    address: 33140
+    value_type: U_WORD
+    icon: mdi:battery-heart-variant
+    skip_updates: 10
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Battery charge current limitation
+    device_class: current
+    state_class: measurement
+    disabled_by_default: true # Do not fill recorder when not needed
+    unit_of_measurement: A
+    register_type: read
+    address: 33143
+    value_type: U_WORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Battery discharge current limitation
+    device_class: current
+    state_class: measurement
+    disabled_by_default: true # Do not fill recorder when not needed
+    unit_of_measurement: A
+    register_type: read
+    address: 33144
+    value_type: U_WORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Household load power
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
+    register_type: read
+    address: 33147
+    value_type: U_WORD
+    accuracy_decimals: 0
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Backup load power
+    device_class: power
+    state_class: measurement
+    disabled_by_default: true # Only relevant if backup connected
+    unit_of_measurement: W
+    register_type: read
+    address: 33148
+    value_type: U_WORD
+    accuracy_decimals: 0
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Battery power
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
+    register_type: read
+    address: 33149
+    value_type: S_DWORD
+    accuracy_decimals: 0
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Total battery charge
@@ -325,7 +481,7 @@ text_sensor:
     register_type: read
     address: 33001
     response_size: 2
-    force_new_range: true # workaround for bug concatening model, dsp and lcd
+    force_new_range: true # workaround for bug concatenating model, dsp and lcd
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:chip
