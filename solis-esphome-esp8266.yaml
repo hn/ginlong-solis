@@ -39,6 +39,7 @@ logger:
 packages:
   device_base: !include common/solis-modbus-inv.yaml
   #device_base: !include common/solis-modbus-esinv.yaml
+  #epm: !include common/solis-modbus-epm.yaml
 
 time:
   - platform: homeassistant

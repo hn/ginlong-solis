@@ -302,6 +302,7 @@ Install the ESPHome firmware for the S3 stick as follows:
 1. If you not already have one, add a `secrets.yaml` to the ESPHome addon, containing at least `wifi_ssid`, `wifi_password`, `wifi_ap_ssid`, `wifi_ap_password`, `api_encryption_key` and `ota_password`.
 1. Add [solis-esphome-emw3080.yaml](solis-esphome-emw3080.yaml) to the ESPHome addon.
 1. Depending on your inverter type, copy one of [solis-modbus-inv.yaml](solis-modbus-inv.yaml) or [solis-modbus-esinv.yaml](solis-modbus-esinv.yaml) as well.
+1. If you have an Export Power Manager (EPM) for consumption monitoring, uncomment the [solis-modbus-epm.yaml](solis-modbus-epm.yaml) package, and copy this file as well.
 1. Within `solis-esphome-emw3080.yaml` edit inverter type (`include` statement within `packages` section).
 1. Click the three-dots button, then "Install" and "Manual Download".
 1. Wait for the compilation process to finish and download the "UF2 package".
