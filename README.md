@@ -24,7 +24,9 @@ Please do me a favor: :thumbsup: If you use any information or code you find her
 
 ### Hardware
 
-You need a proprietary [Exceedconn](http://www.exceedconn.com/) [EC04681-2014-BF](http://www.exceedconn.com/e_products_detail.asp?id=76) connector (available on Ebay) and an RS485-to-serial adapter (a [cheap one without DE/RE pins](https://arduino.stackexchange.com/questions/83501/when-it-comes-to-uart-to-rs485-communication-what-is-the-difference-between-the) is sufficient, e.g. the `HW-0519`, `XY-K485` or `XY-017`). Wire all components to e.g. a Wemos D1 mini (also available as 'pro' variant with an SMA connector and external antenna for better reception) as follows:
+You need a proprietary [Exceedconn](http://www.exceedconn.com/) [EC04681-2014-BF](http://www.exceedconn.com/e_products_detail.asp?id=76) connector
+(available on Ebay, alternatively [nextguyover](https://github.com/hn/ginlong-solis/issues/37) offers a [model for 3D printing](https://insertnewline.com/blog/Solis-solar-esphome/))
+and an RS485-to-serial adapter (a [cheap one without DE/RE pins](https://arduino.stackexchange.com/questions/83501/when-it-comes-to-uart-to-rs485-communication-what-is-the-difference-between-the) is sufficient, e.g. the `HW-0519`, `XY-K485` or `XY-017`). Wire all components to e.g. a Wemos D1 mini (also available as 'pro' variant with an SMA connector and external antenna for better reception) as follows:
 
 ![Solis ESP8266 wiring](solis-esp8266-wiring.jpg "Solis ESP8266 wiring")
 
