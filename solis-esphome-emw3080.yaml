@@ -6,7 +6,7 @@
 # (C) 2023-2024 Hajo Noerenberg
 #
 # Usage:
-#   1. Depending on your type of inverter (INV or ESINV),
+#   1. Depending on your type of device (INV, ESINV or EPM),
 #      include modbus definition in 'packages' section below 
 #   2. Compile and upload
 #      https://docs.libretiny.eu/docs/projects/esphome/#build-upload
@@ -46,9 +46,10 @@ rtl87xx:
 logger:
 
 packages:
-  device_base: !include common/solis-modbus-inv.yaml
-  #device_base: !include common/solis-modbus-esinv.yaml
-  #epm: !include common/solis-modbus-epm.yaml
+  # Uncomment exactly one line depending on your device type
+  #inv:   !include common/solis-modbus-inv.yaml
+  #esinv: !include common/solis-modbus-esinv.yaml
+  #epm:   !include common/solis-modbus-epm.yaml
 
 time:
   - platform: homeassistant

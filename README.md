@@ -5,8 +5,8 @@
 Almost all of their products have an [Modbus](https://en.wikipedia.org/wiki/Modbus) [RS-485](https://en.wikipedia.org/wiki/RS-485) interface for reading live status and statistics.
 
 Quick start, you'll find here:
-- [An ESPHome solution to integrate your inverter into Home Assistant, using an ESP8266](#software-esphome)
-- [An ESPHome solution to integrate your inverter into Home Assistant, by replacing the firmware of the Solis S3 WiFi stick](#replacing-the-main-application)
+- [An ESPHome solution to integrate your inverter or export power manager into Home Assistant, using an ESP8266](#software-esphome)
+- [An ESPHome solution to integrate your inverter or export power manager into Home Assistant, by replacing the firmware of the Solis S3 WiFi stick](#replacing-the-main-application)
 - [An Arduino solution to push data from your inverter to InfluxDB, using an ESP8266](#software-arduino)
 - [A wiring diagram for connecting the inverter to an ESP8266 via ModBus/RS485](#hardware)
 
@@ -303,9 +303,9 @@ Install the ESPHome firmware for the S3 stick as follows:
 1. Install the [ESPHome dashboard](https://esphome.io/guides/getting_started_hassio.html#installing-esphome-dashboard) for Home Assistant (at least version 2023.9.0).
 1. If you not already have one, add a `secrets.yaml` to the ESPHome addon, containing at least `wifi_ssid`, `wifi_password`, `wifi_ap_ssid`, `wifi_ap_password`, `api_encryption_key` and `ota_password`.
 1. Add [solis-esphome-emw3080.yaml](solis-esphome-emw3080.yaml) to the ESPHome addon.
-1. Depending on your inverter type, copy one of [solis-modbus-inv.yaml](solis-modbus-inv.yaml) or [solis-modbus-esinv.yaml](solis-modbus-esinv.yaml) as well.
-1. If you have an Export Power Manager (EPM) for consumption monitoring, uncomment the [solis-modbus-epm.yaml](solis-modbus-epm.yaml) package, and copy this file as well.
-1. Within `solis-esphome-emw3080.yaml` edit inverter type (`include` statement within `packages` section).
+1. Depending on your device type (standard inverter `INV`, hybrid inverter `ESINV` or export power manager `EPM`),
+   copy one of [solis-modbus-inv.yaml](solis-modbus-inv.yaml), [solis-modbus-esinv.yaml](solis-modbus-esinv.yaml) or [solis-modbus-epm.yaml](solis-modbus-epm.yaml) as well.
+1. Within `solis-esphome-emw3080.yaml` edit device type accordingly (`include` statement within `packages` section).
 1. Click the three-dots button, then "Install" and "Manual Download".
 1. Wait for the compilation process to finish and download the "UF2 package".
 1. Set the MCU to `UART boot mode` ([pull TX pin low during boot](https://github.com/hn/ginlong-solis/issues/9) -- you do not need to solder,
