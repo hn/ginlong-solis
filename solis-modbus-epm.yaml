@@ -1,0 +1,378 @@
+#
+# solis-modbus-epm.yaml -- Solis Export Power Manager (EPM) modbus sensors 
+# include file
+#
+# ! This file is to be included as a package in an ESPhome definition !
+#
+# (C) 2024 nextguyover
+#
+# https://github.com/nextguyover/ginlong-solis
+#
+# (C) 2023 Hajo Noerenberg
+#
+# http://www.noerenberg.de/
+# https://github.com/hn/ginlong-solis
+#
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3.0 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program. If not, see <http://www.gnu.org/licenses/gpl-3.0.txt>.
+#
+
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM AC V A
+    device_class: voltage
+    state_class: measurement
+    unit_of_measurement: V
+    register_type: read
+    address: 36000
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM AC I A
+    device_class: current
+    state_class: measurement
+    unit_of_measurement: A
+    register_type: read
+    address: 36001
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM AC V B
+    device_class: voltage
+    state_class: measurement
+    unit_of_measurement: V
+    register_type: read
+    address: 36002
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM AC I B
+    device_class: current
+    state_class: measurement
+    unit_of_measurement: A
+    register_type: read
+    address: 36003
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM AC V C
+    device_class: voltage
+    state_class: measurement
+    unit_of_measurement: V
+    register_type: read
+    address: 36004
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM AC I C
+    device_class: current
+    state_class: measurement
+    unit_of_measurement: A
+    register_type: read
+    address: 36005
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM Power A
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
+    register_type: read
+    address: 36006
+    value_type: S_WORD
+    filters:
+      - multiply: 100
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM Power B
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
+    register_type: read
+    address: 36007
+    value_type: S_WORD
+    filters:
+      - multiply: 100
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM Power C
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
+    register_type: read
+    address: 36008
+    value_type: S_WORD
+    filters:
+      - multiply: 100
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM Power Total
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
+    register_type: read
+    address: 36009
+    value_type: S_DWORD_R
+    filters:
+      - multiply: 100
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM Inverter Total Power
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
+    register_type: read
+    address: 36011
+    value_type: S_DWORD_R
+    filters:
+      - multiply: 100
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM Power Control Percent
+    state_class: measurement
+    unit_of_measurement: "%"
+    register_type: read
+    address: 36015
+    value_type: U_WORD
+    entity_category: diagnostic
+    icon: mdi:percent
+    force_new_range: true
+    skip_updates: 10
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.01
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM CT Ratio
+    register_type: read
+    address: 36016
+    value_type: U_WORD
+    entity_category: diagnostic
+    icon: mdi:current-ac
+    force_new_range: true
+    skip_updates: 10
+    filters:
+      - multiply: 10
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM Backflow Power Setting
+    unit_of_measurement: W
+    register_type: read
+    address: 36017
+    value_type: S_WORD
+    entity_category: diagnostic
+    icon: mdi:meter-electric
+    force_new_range: true
+    skip_updates: 10
+    filters:
+      - multiply: 100
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM Inverter Number Setting
+    register_type: read
+    address: 36018
+    value_type: U_WORD
+    entity_category: diagnostic
+    icon: mdi:numeric
+    force_new_range: true
+    skip_updates: 10
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM Total Load Power
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
+    register_type: read
+    address: 36028
+    value_type: U_DWORD_R
+    filters:
+      - multiply: 100
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM Inverter Total Generation Energy
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 36050
+    value_type: U_DWORD_R
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.01
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM Load Total Consumption Energy
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 36052
+    value_type: U_DWORD_R
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.01
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM Grid Import Total Active Energy
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 36054
+    value_type: U_DWORD_R
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.01
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM Grid Export Total Active Energy
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 36056
+    value_type: U_DWORD_R
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.01
+
+text_sensor:
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM SN
+    register_type: read
+    address: 36030
+    response_size: 16 # docs state SN max size is 15 digits, 16 here gets full SN
+    entity_category: diagnostic
+    icon: mdi:numeric
+    force_new_range: true
+    skip_updates: 10
+    lambda: |-
+      char serialnumber[16 + 1];
+      memcpy(serialnumber, &data[item->offset], 16);
+      serialnumber[16] = 0;
+      return std::string(serialnumber);
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    id: epm_rtc
+    register_type: holding
+    address: 36500
+    register_count: 6
+    raw_encode: HEXBYTES
+    entity_category: diagnostic
+    icon: mdi:clock-digital
+    force_new_range: true
+    skip_updates: 10
+    lambda: |-
+      time_t i_t;
+      struct tm i_tm = { 0 };
+      i_tm.tm_year  = static_cast<int>((static_cast<uint16_t>(data[item->offset + 0]) << 8) | data[item->offset + 1]) + 2000 - 1900;
+      i_tm.tm_mon   = static_cast<int>((static_cast<uint16_t>(data[item->offset + 2]) << 8) | data[item->offset + 3]) - 1;
+      i_tm.tm_mday  = static_cast<int>((static_cast<uint16_t>(data[item->offset + 4]) << 8) | data[item->offset + 5]);
+      i_tm.tm_hour  = static_cast<int>((static_cast<uint16_t>(data[item->offset + 6]) << 8) | data[item->offset + 7]);
+      i_tm.tm_min   = static_cast<int>((static_cast<uint16_t>(data[item->offset + 8]) << 8) | data[item->offset + 9]);
+      i_tm.tm_sec   = static_cast<int>((static_cast<uint16_t>(data[item->offset + 10]) << 8) | data[item->offset + 11]);
+      i_tm.tm_isdst = -1;
+      i_t = mktime(&i_tm);
+      ESP_LOGI("SyncEpmRTC", "EPM RTC is %02d:%02d:%02d %04d-%02d-%02d",
+        i_tm.tm_hour, i_tm.tm_min, i_tm.tm_sec, i_tm.tm_year + 1900, i_tm.tm_mon + 1, i_tm.tm_mday);
+      auto s_espt = id(network_time).now();
+      if (s_espt.is_valid()) {
+        double deviation = difftime(i_t, s_espt.timestamp);
+        if (abs(deviation) > 42) {
+          std::vector<uint16_t> rtc_data =
+            {(uint16_t) (s_espt.year % 100), s_espt.month, s_espt.day_of_month, s_espt.hour, s_espt.minute, s_espt.second};
+          auto set_rtc_command =
+            modbus_controller::ModbusCommandItem::create_write_multiple_command(modbus_master, item->start_address, item->register_count, rtc_data);
+          modbus_master->queue_command(set_rtc_command);
+          ESP_LOGI("SyncEpmRTC", "EPM RTC deviation=%.fs, updated RTC to %02d:%02d:%02d %04d-%02d-%02d",
+            deviation, s_espt.hour, s_espt.minute, s_espt.second, s_espt.year, s_espt.month, s_espt.day_of_month);
+        }
+      } else {
+        ESP_LOGI("SyncEpmRTC", "EPM RTC not checked because NTP is not yet synchronised");
+      }
+      return {};
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM Model
+    register_type: read
+    address: 36060
+    response_size: 2
+    raw_encode: HEXBYTES
+    entity_category: diagnostic
+    icon: mdi:factory
+    force_new_range: true
+    skip_updates: 10
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM Inverter Product Model
+    register_type: read
+    address: 36013
+    response_size: 2
+    raw_encode: HEXBYTES
+    entity_category: diagnostic
+    icon: mdi:factory
+    force_new_range: true
+    skip_updates: 10
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM Firmware Version
+    register_type: read
+    address: 36014
+    response_size: 2
+    raw_encode: HEXBYTES
+    entity_category: diagnostic
+    icon: mdi:chip
+    force_new_range: true
+    skip_updates: 10
+
+binary_sensor:
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: EPM Failsafe
+    register_type: read
+    address: 36025
+    bitmask: 0x0001
+    entity_category: diagnostic
+    force_new_range: true
+    skip_updates: 10
