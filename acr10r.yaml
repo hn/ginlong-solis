@@ -1,0 +1,125 @@
+#
+# acr10r.yaml -- Single Phase Acr10r modbus sensor
+# include file
+#
+# ! This file is to be included as a package in an ESPhome definition !
+#
+# (C) 2023 Hajo Noerenberg
+#
+# http://www.noerenberg.de/
+# https://github.com/hn/ginlong-solis
+#
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3.0 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program. If not, see <http://www.gnu.org/licenses/gpl-3.0.txt>.
+#
+
+sensor:  
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Meter Voltage
+    device_class: voltage
+    state_class: measurement
+    unit_of_measurement: V
+    register_type: read
+    address: 3250 #3251 -1
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Meter Current
+    device_class: current
+    state_class: measurement
+    unit_of_measurement: A
+    register_type: read
+    address: 3251 #3252 -1
+    value_type: U_WORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.01
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Meter Power
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
+    register_type: read
+    address: 3256 #3257 -1
+    value_type: S_DWORD
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Meter Reactive Power
+    device_class: reactive_power
+    state_class: measurement
+    unit_of_measurement: VAr
+    register_type: read
+    address: 3264 #3265 - 1
+    value_type: S_DWORD
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Meter Aparent Power
+    device_class: apparent_power
+    state_class: measurement
+    unit_of_measurement: VA
+    register_type: read
+    address: 3272 #3273 - 1
+    value_type: S_DWORD
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Meter Power Factor
+    device_class: power_factor
+    state_class: measurement
+    unit_of_measurement: ""
+    register_type: read
+    address: 3264 #3265 - 1
+    value_type: S_WORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.01
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Meter Frequency
+    device_class: frequency
+    state_class: measurement
+    unit_of_measurement: Hz
+    register_type: read
+    address: 3281 #3282 - 1
+    value_type: U_WORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.01
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Meter Grid Import Active Energy
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 3282 #3283 -1
+    value_type: U_DWORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.01
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Meter Grid Export Active Energy
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 3284 #3285 -1
+    value_type: U_DWORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.01

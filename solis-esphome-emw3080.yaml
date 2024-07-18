@@ -51,6 +51,9 @@ packages:
   #esinv: !include common/solis-modbus-esinv.yaml
   #epm:   !include common/solis-modbus-epm.yaml
 
+  # Uncomment for optional inverter addons
+  #acr10r: !include common/acr10r.yaml
+
 time:
   - platform: homeassistant
     id: network_time
