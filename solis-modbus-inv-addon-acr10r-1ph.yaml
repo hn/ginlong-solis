@@ -1,5 +1,5 @@
 #
-# acr10r.yaml -- Single Phase Acr10r modbus sensor
+# solis-modbus-inv-addon-acr10r-1ph.yaml -- Single Phase Acr10r modbus sensor
 # include file
 #
 # ! This file is to be included as a package in an ESPhome definition !
@@ -31,7 +31,7 @@ sensor:
     state_class: measurement
     unit_of_measurement: V
     register_type: read
-    address: 3250 #3251 -1
+    address: 3250 # = 3251 -1
     value_type: U_WORD
     accuracy_decimals: 1
     filters:
@@ -43,7 +43,7 @@ sensor:
     state_class: measurement
     unit_of_measurement: A
     register_type: read
-    address: 3251 #3252 -1
+    address: 3251 # = 3252 -1
     value_type: U_WORD
     accuracy_decimals: 2
     filters:
@@ -55,7 +55,7 @@ sensor:
     state_class: measurement
     unit_of_measurement: W
     register_type: read
-    address: 3256 #3257 -1
+    address: 3256 # = 3257 -1
     value_type: S_DWORD
   - platform: modbus_controller
     modbus_controller_id: modbus_master
@@ -64,16 +64,16 @@ sensor:
     state_class: measurement
     unit_of_measurement: VAr
     register_type: read
-    address: 3264 #3265 - 1
+    address: 3264 # = 3265 - 1
     value_type: S_DWORD
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Meter Aparent Power
+    name: Meter Apparent Power
     device_class: apparent_power
     state_class: measurement
     unit_of_measurement: VA
     register_type: read
-    address: 3272 #3273 - 1
+    address: 3272 # = 3273 - 1
     value_type: S_DWORD
   - platform: modbus_controller
     modbus_controller_id: modbus_master
@@ -82,7 +82,7 @@ sensor:
     state_class: measurement
     unit_of_measurement: ""
     register_type: read
-    address: 3264 #3265 - 1
+    address: 3264 # = 3265 - 1
     value_type: S_WORD
     accuracy_decimals: 2
     filters:
@@ -94,7 +94,7 @@ sensor:
     state_class: measurement
     unit_of_measurement: Hz
     register_type: read
-    address: 3281 #3282 - 1
+    address: 3281 # = 3282 - 1
     value_type: U_WORD
     accuracy_decimals: 2
     filters:
@@ -106,7 +106,7 @@ sensor:
     state_class: total_increasing
     unit_of_measurement: kWh
     register_type: read
-    address: 3282 #3283 -1
+    address: 3282 # = 3283 -1
     value_type: U_DWORD
     accuracy_decimals: 2
     filters:
@@ -118,7 +118,7 @@ sensor:
     state_class: total_increasing
     unit_of_measurement: kWh
     register_type: read
-    address: 3284 #3285 -1
+    address: 3284 # = 3285 -1
     value_type: U_DWORD
     accuracy_decimals: 2
     filters:
