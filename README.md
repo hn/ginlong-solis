@@ -308,7 +308,7 @@ Install the ESPHome firmware for the S3 stick as follows:
 1. Within `solis-esphome-emw3080.yaml` edit device type accordingly (`include` statement within `packages` section).
 1. Click the three-dots button, then "Install" and "Manual Download".
 1. Wait for the compilation process to finish and download the "UF2 package".
-1. Set the MCU to `UART boot mode` ([pull TX pin low during boot](https://github.com/hn/ginlong-solis/issues/9) -- you do not need to solder,
+1. Set the MCU to `UART boot mode` ([pull TX pin low during boot](https://github.com/hn/ginlong-solis/issues/48#issuecomment-2371866988) -- you do not need to solder,
    just [inserting some jumper wires](https://github.com/hn/ginlong-solis/issues/9#issuecomment-1595643051) is sufficient).
    Make sure your serial adapter uses 3.3V voltage, read the notes below carefully about possible challenges with these adapters.
 1. Backup the stock firmware with [ltchiptool](https://github.com/libretiny-eu/ltchiptool) (also available as a Win GUI version):
