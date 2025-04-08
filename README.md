@@ -1,10 +1,12 @@
 # Ginlong Solis solar inverters
 
 ## Preamble
+
 [Ginlong Solis](https://www.ginlong.com/) is one of the world's recognised manufacturers of string solar inverters.
 Almost all of their products have an [Modbus](https://en.wikipedia.org/wiki/Modbus) [RS-485](https://en.wikipedia.org/wiki/RS-485) interface for reading live status and statistics.
 
 Quick start, you'll find here:
+
 - [An ESPHome solution to integrate your inverter or export power manager into Home Assistant, using an ESP8266](#software-esphome)
 - [An ESPHome solution to integrate your inverter or export power manager into Home Assistant, by replacing the firmware of the Solis S3 WiFi stick](#replacing-the-main-application)
 - [An Arduino solution to push data from your inverter to InfluxDB, using an ESP8266](#software-arduino)
@@ -143,18 +145,18 @@ See the [full (anonymized) bootlog](solis-wifi-stick-s3-bootlog.txt) for more de
 When holding the 'w' key during boot an extremely limited [2ndboot](https://github.com/alibaba/AliOS-Things/tree/rel_3.0.0/middleware/uagent/ota/2ndboot) CLI starts:
 
 ```
-2ndboot image start 
+2ndboot image start
 
 Press key 'w' to 2ndboot cli menu in 100ms.
 2ndboot ver: 2ndboot-1.0.0-20210917.200018
 Please input 1-2 to select functions
-[1] Uart Ymodem Upgrade 
-[2] System Reboot 
+[1] Uart Ymodem Upgrade
+[2] System Reboot
 [h] Help Info
-2ndboot# h 
+2ndboot# h
 2ndboot ver: 2ndboot-1.0.0-20210917.200018
 Please input 1-2 to select functions
-2ndboot# 
+2ndboot#
 ```
 
 When pulling TX pin 21 (`PA_30`) low during boot, the device waits for a xmodem
@@ -310,7 +312,9 @@ Install the ESPHome firmware for the S3 stick as follows:
 1. Wait for the compilation process to finish and download the "UF2 package".
 1. Set the MCU to `UART boot mode` ([pull TX pin low during boot](https://github.com/hn/ginlong-solis/issues/48#issuecomment-2371866988) -- you do not need to solder,
    just [inserting some jumper wires](https://github.com/hn/ginlong-solis/issues/9#issuecomment-1595643051) is sufficient).
-   Make sure your serial adapter uses 3.3V voltage, read the notes below carefully about possible challenges with these adapters.
+   Make sure your serial adapter uses 3.3V voltage for RX and TX pins (there is usually a jumper for this).
+   VCC should be connected to 5V voltage (3.3V might work, but 5V is more stable).
+   Read the notes below carefully about possible challenges with these adapters.
 1. Backup the stock firmware with [ltchiptool](https://github.com/libretiny-eu/ltchiptool) (also available as a Win GUI version):
    ```
    $ ltchiptool -V
@@ -337,7 +341,7 @@ for dumping and flashing. Other adapters may have [problems with the required hi
 In some cases, the serial adapter or USB port does not supply enough power to flash the stick, then try a different adapter or USB port.
 
 :bulb: This integration uses a [patched](libretiny-ringbuffer-workaround.diff) version of
-the [ArduinoCore-API](https://github.com/hn/ArduinoCore-API). This workaround is necessary until https://github.com/libretiny-eu/libretiny/issues/154 is fixed.
+the [ArduinoCore-API](https://github.com/hn/ArduinoCore-API). This workaround is necessary until <https://github.com/libretiny-eu/libretiny/issues/154> is fixed.
 
 :bulb: Matching the EMW3080 datasheet, one should actually use the `generic-rtl8710bn-2mb-788k` board profile
 for LibreTiny. But since the Solis WiFi stick has a special 8MB version of the MCU with an OTA address of 0x100000, the
@@ -389,4 +393,3 @@ but it now seems to me to have been superseded by the official versions from Sol
 - [incub77](https://github.com/incub77/) offers [a comprehensive solution based on the Raspberry Pi](https://github.com/incub77/solis2mqtt)
 
 - How could it be otherwise than that Tasmota also offers [a solution for Modbus inverters](https://github.com/arendst/Tasmota/blob/master/tasmota/tasmota_xnrg_energy/xnrg_29_modbus.ino).
-
