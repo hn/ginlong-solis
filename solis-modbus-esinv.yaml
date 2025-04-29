@@ -118,6 +118,8 @@ binary_sensor:
     register_type: read
     address: 33121
     bitmask: 0x0100 # bit 08
+    filters:
+      - invert: # Modbus returns 0 for load fault, 1 for OK
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Operation status Grid fault
@@ -125,6 +127,8 @@ binary_sensor:
     register_type: read
     address: 33121
     bitmask: 0x0200 # bit 09
+    filters:
+      - invert: # Modbus returns 0 for grid fault, 1 for OK
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Operation status Battery fault
@@ -132,6 +136,8 @@ binary_sensor:
     register_type: read
     address: 33121
     bitmask: 0x0400 # bit 10
+    filters:
+      - invert: # Modbus returns 0 for battery fault, 1 for OK
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Operation status Grid Surge Warn
@@ -149,6 +155,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Battery current direction
+    id: battery_current_direction
     device_class: battery_charging # on means charging, off means not charging
     register_type: read
     address: 33135
@@ -443,6 +450,12 @@ sensor:
     address: 33149
     value_type: S_DWORD
     accuracy_decimals: 0
+    lambda: |-
+        if (id(battery_current_direction).state) {
+            return x;
+        } else {
+            return -x;
+        }
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Total battery charge
