@@ -63,7 +63,7 @@ binary_sensor:
     address: 33121
     bitmask: 0x0001 # bit 00
     filters:
-      invert:
+      - invert:
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Operation status Initializing
@@ -297,7 +297,7 @@ sensor:
     name: Active power
     device_class: power
     state_class: measurement
-    disabled_by_default: true # Do not fill recorder when not needed
+    disabled_by_default: true # intentionally disabled to save storage space
     unit_of_measurement: W
     register_type: read
     address: 33079
@@ -307,7 +307,7 @@ sensor:
     name: Reactive power
     device_class: reactive_power
     state_class: measurement
-    disabled_by_default: true # Do not fill recorder when not needed
+    disabled_by_default: true # intentionally disabled to save storage space
     unit_of_measurement: var
     register_type: read
     address: 33081
@@ -317,7 +317,7 @@ sensor:
     name: Apparent power
     device_class: apparent_power
     state_class: measurement
-    disabled_by_default: true # Do not fill recorder when not needed
+    disabled_by_default: true # intentionally disabled to save storage space
     unit_of_measurement: VA
     register_type: read
     address: 33083
@@ -351,7 +351,7 @@ sensor:
     name: Battery voltage
     device_class: voltage
     state_class: measurement
-    disabled_by_default: true # Do not fill recorder when not needed
+    disabled_by_default: true # intentionally disabled to save storage space
     unit_of_measurement: V
     register_type: read
     address: 33133
@@ -364,7 +364,7 @@ sensor:
     name: Battery current
     device_class: current
     state_class: measurement
-    disabled_by_default: true # Do not fill recorder when not needed
+    disabled_by_default: true # intentionally disabled to save storage space
     unit_of_measurement: A
     register_type: read
     address: 33134
@@ -398,7 +398,7 @@ sensor:
     name: Battery charge current limitation
     device_class: current
     state_class: measurement
-    disabled_by_default: true # Do not fill recorder when not needed
+    disabled_by_default: true # intentionally disabled to save storage space
     unit_of_measurement: A
     register_type: read
     address: 33143
@@ -411,7 +411,7 @@ sensor:
     name: Battery discharge current limitation
     device_class: current
     state_class: measurement
-    disabled_by_default: true # Do not fill recorder when not needed
+    disabled_by_default: true # intentionally disabled to save storage space
     unit_of_measurement: A
     register_type: read
     address: 33144
