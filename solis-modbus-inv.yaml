@@ -344,13 +344,12 @@ text_sensor:
     icon: mdi:numeric
     skip_updates: 10
     lambda: |-
-      char serialnumber[4 * 4 + 1];
-      for (int j = 0; j < 4; j++) {
-        unsigned int r = esphome::modbus_controller::word_from_hex_str(x, j * 2);;
-        sprintf(serialnumber + (j * 4), "%02x%02x",
-          (r & 0x0F) << 4 | (r & 0xF0) >> 4, (r & 0x0F00) >> 4 | (r & 0xF000) >> 12);
+      char serialnumber[2 * 8 + 1];
+      for (int j = 0; j < 8; j++) {
+        unsigned int r = data[item->offset + j + (j + 1) % 2 - j % 2];
+        sprintf(serialnumber + (j * 2), "%02x", (r & 0x0F) << 4 | (r & 0xF0) >> 4);
       }
-      serialnumber[4 * 4] = 0;
+      serialnumber[2 * 8] = 0;
       return std::string(serialnumber);
   - platform: modbus_controller
     modbus_controller_id: modbus_master
@@ -365,12 +364,12 @@ text_sensor:
     lambda: |-
       time_t i_t;
       struct tm i_tm = { 0 };
-      i_tm.tm_year  = modbus_controller::word_from_hex_str(x, 0*2) + 2000 - 1900;
-      i_tm.tm_mon   = modbus_controller::word_from_hex_str(x, 1*2) - 1;
-      i_tm.tm_mday  = modbus_controller::word_from_hex_str(x, 2*2);
-      i_tm.tm_hour  = modbus_controller::word_from_hex_str(x, 3*2);
-      i_tm.tm_min   = modbus_controller::word_from_hex_str(x, 4*2);
-      i_tm.tm_sec   = modbus_controller::word_from_hex_str(x, 5*2);
+      i_tm.tm_year  = static_cast<int>((static_cast<uint16_t>(data[item->offset + 0]) << 8) | data[item->offset + 1]) + 2000 - 1900;
+      i_tm.tm_mon   = static_cast<int>((static_cast<uint16_t>(data[item->offset + 2]) << 8) | data[item->offset + 3]) - 1;
+      i_tm.tm_mday  = static_cast<int>((static_cast<uint16_t>(data[item->offset + 4]) << 8) | data[item->offset + 5]);
+      i_tm.tm_hour  = static_cast<int>((static_cast<uint16_t>(data[item->offset + 6]) << 8) | data[item->offset + 7]);
+      i_tm.tm_min   = static_cast<int>((static_cast<uint16_t>(data[item->offset + 8]) << 8) | data[item->offset + 9]);
+      i_tm.tm_sec   = static_cast<int>((static_cast<uint16_t>(data[item->offset + 10]) << 8) | data[item->offset + 11]);
       i_tm.tm_isdst = -1;
       i_t = mktime(&i_tm);
       ESP_LOGI("SyncInverterRTC", "Inverter RTC is %02d:%02d:%02d %04d-%02d-%02d",
