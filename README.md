@@ -387,9 +387,5 @@ but it now seems to me to have been superseded by the official versions from Sol
 
 - [kuba2k2](https://github.com/kuba2k2) for LibreTiny und for patiently helping with problems and patches.
 
-- [jimmyburnworld](https://github.com/jimmyburnworld/) implemented [a similiar approach for Solis ESINV inverters](https://github.com/jimmyburnworld/SolisModbus-MQTT)
-  and [MalteSchm](https://github.com/MalteSchm/) updated it [for Solis INV inverters](https://github.com/MalteSchm/SolisModbus-MQTT).
-
-- [incub77](https://github.com/incub77/) offers [a comprehensive solution based on the Raspberry Pi](https://github.com/incub77/solis2mqtt)
-
-- How could it be otherwise than that Tasmota also offers [a solution for Modbus inverters](https://github.com/arendst/Tasmota/blob/master/tasmota/tasmota_xnrg_energy/xnrg_29_modbus.ino).
+- [fboundy](https://github.com/fboundy/) has a comprehensive [overview](https://github.com/fboundy/ha_solis_overview) of the various Solis sticks
+  and shows numerous options for connecting them.
