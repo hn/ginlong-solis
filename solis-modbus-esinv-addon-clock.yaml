@@ -1,0 +1,133 @@
+#
+# Clock sync extension for Solis ESINV inverters e.g. S5-EH1P3.6K-L
+# Contributed by Phil Pemberton, github.com/philpem
+#
+# Requires a time object called "network_time" in the enclosing YAML, e.g.:
+#
+# time:
+#  - platform: homeassistant
+#    id: network_time
+#
+
+# The inverter clock is stored in six consecutive Modbus U16 input registers:
+#  INV:
+#   - 33022: Year
+#   - 33023: Month
+#   - 33034: Day
+#   - 33025: Hour
+#   - 33026: Minute
+#   - 33027: Second
+#  To set the clock, write to 43000 in the same format, see https://solis-exporter.readthedocs.io/en/latest/packet_log/
+#  These may also start at 3073, see https://diysolarforum.com/resources/solis-grid-tied-inverters-2018-rs485-modbus-communication-protocol.272/download
+
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    id: inverter_clock_internal
+    name: "Inverter clock (internal)"
+    address: 33022
+    register_count: 6
+    register_type: read
+    value_type: U_WORD  # irrelevant because of the register_count override but meh
+    skip_updates: 10      # Doesn't change frequently, update every 10 updates
+    internal: true
+
+    lambda: |-
+      uint16_t t_year  = (data[item->offset+ 0] << 8) | (data[item->offset+ 1]);
+      uint16_t t_month = (data[item->offset+ 2] << 8) | (data[item->offset+ 3]);
+      uint16_t t_day   = (data[item->offset+ 4] << 8) | (data[item->offset+ 5]);
+      uint16_t t_hour  = (data[item->offset+ 6] << 8) | (data[item->offset+ 7]);
+      uint16_t t_min   = (data[item->offset+ 8] << 8) | (data[item->offset+ 9]);
+      uint16_t t_sec   = (data[item->offset+10] << 8) | (data[item->offset+11]);
+
+      // Inverter doesn't have a century byte. If it's still in use in 75
+      // years, you'll want to change this.
+      t_year += 2000;
+
+      id(inverter_clock).publish_state(str_sprintf("%04u-%02u-%02u %02u:%02u:%02u", 
+        t_year, t_month, t_day, t_hour, t_min, t_sec));
+
+      return NAN;
+
+text:
+  - platform: template
+    name: "Inverter clock"
+    id: inverter_clock
+    optimistic: false
+    mode: TEXT
+    setup_priority: -100
+    set_action: 
+      then:
+        - lambda: |-
+            unsigned int t_year, t_month, t_day, t_hour, t_min, t_sec;
+
+            ESP_LOGI("WLambda", "Clock Write Lambda entry: '%s'", x.c_str());
+            // New value is in the "x" variable
+            if (sscanf(x.c_str(), "%04u-%02u-%02u %02u:%02u:%02u",
+                    &t_year, &t_month, &t_day, &t_hour, &t_min, &t_sec) != 6) {
+              ESP_LOGI("WLambda", "Bad format");
+              return;
+            }
+
+            // Inverter doesn't have a century byte. If it's still in use in 75
+            // years, you'll want to change this.
+            t_year -= 2000;
+
+            if ((t_year < 0) || (t_year > 99) || (t_month < 1) || (t_month > 12) ||
+                (t_day  < 1) || (t_day  > 31) ||
+                (t_hour < 0) || (t_hour > 23) || (t_min   < 0) || (t_min   > 59) ||
+                (t_sec  < 0) || (t_sec  > 59))
+            {
+              ESP_LOGI("WLambda", "Clock Values out of bounds");
+              return;
+            }
+
+            esphome::modbus_controller::ModbusController *controller = id(modbus_master);
+
+            // create the payload
+            std::vector<uint16_t> payload = {
+              (uint16_t)t_year, (uint16_t)t_month, (uint16_t)t_day,
+              (uint16_t)t_hour, (uint16_t)t_min, (uint16_t)t_sec,
+              };
+
+            // Create a modbus command item with the time information as the payload
+            esphome::modbus_controller::ModbusCommandItem set_clock_command =
+                esphome::modbus_controller::ModbusCommandItem::create_write_multiple_command(controller, 43000, 6, payload);
+            // Submit the command to the send queue
+            controller->queue_command(set_clock_command);
+            ESP_LOGI("WLambda", "Clock set");
+
+button:
+  - platform: template
+    name: "Sync inverter clock"
+    on_press:
+      then:
+        - lambda: |-
+            ESP_LOGI("ClockSync", "Synchronising inverter clock to ESP");
+
+            // Get local time from ESPTime
+            auto time = id(network_time).now();
+            if (!time.is_valid()) {
+                ESP_LOGE("ClockSync", "Local time on ESP is not valid");
+                return;
+            }
+
+            esphome::modbus_controller::ModbusController *controller = id(modbus_master);
+
+            // create the payload
+            std::vector<uint16_t> payload = {
+              (uint16_t)time.year, (uint16_t)time.month, (uint16_t)time.day_of_month,
+              (uint16_t)time.hour, (uint16_t)time.minute, (uint16_t)time.second
+              };
+
+            // Create a modbus command item with the time information as the payload
+            esphome::modbus_controller::ModbusCommandItem set_clock_command =
+                esphome::modbus_controller::ModbusCommandItem::create_write_multiple_command(controller, 43000, 6, payload);
+
+            // Submit the command to the send queue
+            controller->queue_command(set_clock_command);
+
+            ESP_LOGI("ClockSync", "Inverter clock set to %04u-%02u-%02u %02u:%02u:%02u",
+                          time.year, time.month, time.day_of_month,
+                          time.hour, time.minute, time.second);
+
