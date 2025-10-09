@@ -476,6 +476,63 @@ sensor:
     address: 33165
     value_type: U_DWORD
     skip_updates: 10
+    
+# The inverter clock is stored in six consecutive Modbus U16 input registers:
+#  INV:
+#   - 33022: Year
+#   - 33023: Month
+#   - 33034: Day
+#   - 33025: Hour
+#   - 33026: Minute
+#   - 33027: Second
+#  To set the clock, write to 43000 in the same format, see https://solis-exporter.readthedocs.io/en/latest/packet_log/
+#  These may also start at 3073, see https://diysolarforum.com/resources/solis-grid-tied-inverters-2018-rs485-modbus-communication-protocol.272/download
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    id: inverter_clock
+    name: "Inverter clock (internal)"
+    address: 33022
+    register_count: 6
+    register_type: read
+    value_type: U_WORD  # irrelevant because of the register_count override but meh
+    skip_updates: 10      # Doesn't change frequently, update every 10 updates
+    internal: true
+    entity_category: diagnostic
+
+    lambda: |-
+      time_t i_t;
+      struct tm i_tm = { 0 };
+      
+      // Inverter doesn't have a century byte. If it's still in use in 75
+      // years, you'll want to change this.
+      i_tm.tm_year  = ((data[item->offset+ 0] << 8) | (data[item->offset+ 1])) + 2000 - 1900;
+      i_tm.tm_mon   = ((data[item->offset+ 2] << 8) | (data[item->offset+ 3])) - 1;
+      i_tm.tm_mday  = (data[item->offset+ 4] << 8) | (data[item->offset+ 5]);
+      i_tm.tm_hour  = (data[item->offset+ 6] << 8) | (data[item->offset+ 7]);
+      i_tm.tm_min   = (data[item->offset+ 8] << 8) | (data[item->offset+ 9]);
+      i_tm.tm_sec   = (data[item->offset+10] << 8) | (data[item->offset+11]);
+      i_tm.tm_isdst = -1;
+      i_t = mktime(&i_tm);
+      ESP_LOGI("SyncInverterRTC", "Inverter RTC is %02d:%02d:%02d %04d-%02d-%02d",
+        i_tm.tm_hour, i_tm.tm_min, i_tm.tm_sec, i_tm.tm_year + 1900, i_tm.tm_mon + 1, i_tm.tm_mday);
+
+      auto s_espt = id(network_time).now();
+      if (s_espt.is_valid()) {
+        double deviation = difftime(i_t, s_espt.timestamp);
+        if (abs(deviation) > 42) {
+          std::vector<uint16_t> rtc_data =
+            {(uint16_t) (s_espt.year % 100), s_espt.month, s_espt.day_of_month, s_espt.hour, s_espt.minute, s_espt.second};
+          auto set_rtc_command =
+            modbus_controller::ModbusCommandItem::create_write_multiple_command(modbus_master, 43000, item->register_count, rtc_data);
+          modbus_master->queue_command(set_rtc_command);
+          ESP_LOGI("SyncInverterRTC", "Inverter RTC deviation=%.fs, updated RTC to %02d:%02d:%02d %04d-%02d-%02d",
+            deviation, s_espt.hour, s_espt.minute, s_espt.second, s_espt.year, s_espt.month, s_espt.day_of_month);
+        }
+      } else {
+        ESP_LOGI("SyncInverterRTC", "Inverter RTC not checked because NTP is not yet synchronised");
+      }
+
+      return {};
 
 text_sensor:
   - platform: modbus_controller
