@@ -1,0 +1,280 @@
+#
+# solis-modbus-esinv-addon-timer.yaml -- timers for battery charge and discharge periods
+# include file
+#
+# ! This file is to be included as a package in an ESPHome definition !
+#
+# (C) 2025 Phil
+#
+# https://github.com/philpem
+
+# For the inverter to honour this, it must be in Self Use mode, and the
+# Self Use timers need to be enabled. This can be done via a Modbus
+# write (the Solis Exporter documentation explains how to do it) or via
+# the HMI interface on the inverter (go into advanced settings, enter PIN,
+# energy storage mode, all off except Self Use, enable Time Of Use).
+
+# Timer settings are a bit "fun" and not documented in the Modbus spec.
+# For protocol info, see -
+# https://solis-exporter.readthedocs.io/en/latest/references/
+# https://solis-exporter.readthedocs.io/en/latest/packet_log/
+# https://akkudoktor.net/uploads/short-url/860gETtHwhFvy2a9AiIzDqO2lT5.pdf
+#
+# Another source of HA code and ideas is this addon:
+#  https://github.com/fboundy/ha_solis_modbus
+
+# Energy Storage Mode is set via register 43110 (Energy storage control switch).
+#  Value 33 is "Self Use, Spontaneous mode",
+#        35 is "Self Use, Optimised Revenie mode (timed chg/dis)"
+#
+# Timers are stored as 8x consecutive U16 Modbus holding variables starting at:
+#   - 43143 (Timer 1)
+#   - 43153 (Timer 2)
+#   - 43163 (Timer 3)
+# The variables are as follows:
+#   - +0: Charge Start Hour
+#   - +1: Charge Start Minute
+#   - +2: Charge Stop Hour
+#   - +3: Charge Stop Minute
+#   - +4: Discharge Start Hour
+#   - +5: Discharge Start Minute
+#   - +6: Discharge Stop Hour
+#   - +7: Discharge Stop Minute
+# The inverter won't accept single writes to these: as a minimum, the Charge
+# Start Hr/Min and Charge Stop Hr/Min must be written in a single Write
+# Multiple Registers command. I assume this is the same for the Discharge timer.
+#
+# Of course, you can write the charge and discharge timers at the same time if
+# you like.
+
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    id: timed_charge_1_internal
+    name: "Timed Charge 1 (internal)"
+    address: 43143
+    register_count: 4
+    register_type: holding
+    value_type: U_WORD  # irrelevant because of the register_count override but meh
+    skip_updates: 10      # Doesn't change frequently, update every 10 updates
+    internal: true
+
+    lambda: |-
+      // data here is bytes, modbus registers are words, msb first
+      uint16_t s_hours = (data[item->offset+0] << 8) | (data[item->offset+1]);
+      uint16_t s_mins  = (data[item->offset+2] << 8) | (data[item->offset+3]);
+      uint16_t e_hours = (data[item->offset+4] << 8) | (data[item->offset+5]);
+      uint16_t e_mins  = (data[item->offset+6] << 8) | (data[item->offset+7]);
+
+      if ((s_hours < 0) || (s_hours > 23) || (s_mins < 0) || (s_mins > 59) ||
+          (e_hours < 0) || (e_hours > 23) || (e_mins < 0) || (e_mins > 59))
+      {
+        ESP_LOGI("RLambda1", "Timed Charge 1 value out of bounds");
+        id(timed_charge_1).publish_state("");
+        return NAN;
+      }
+
+      // Convert to string and push to the text template
+      id(timed_charge_1).publish_state(str_sprintf("%02u:%02u-%02u:%02u", s_hours, s_mins, e_hours, e_mins));
+
+      ESP_LOGI("RLambda1", "Read1: %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
+      return ((((uint32_t)s_hours * 100) + (uint32_t)s_mins) * 10000) +
+             ((((uint32_t)e_hours * 100) + (uint32_t)e_mins));
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    id: timed_charge_2_internal
+    name: "Timed Charge 2 (internal)"
+    address: 43153
+    register_count: 4
+    register_type: holding
+    value_type: U_WORD  # irrelevant because of the register_count override but meh
+    skip_updates: 10      # Doesn't change frequently, update every 10 updates
+    internal: true
+
+    lambda: |-
+      // data here is bytes, modbus registers are words, msb first
+      uint16_t s_hours = (data[item->offset+0] << 8) | (data[item->offset+1]);
+      uint16_t s_mins  = (data[item->offset+2] << 8) | (data[item->offset+3]);
+      uint16_t e_hours = (data[item->offset+4] << 8) | (data[item->offset+5]);
+      uint16_t e_mins  = (data[item->offset+6] << 8) | (data[item->offset+7]);
+
+      if ((s_hours < 0) || (s_hours > 23) || (s_mins < 0) || (s_mins > 59) ||
+          (e_hours < 0) || (e_hours > 23) || (e_mins < 0) || (e_mins > 59))
+      {
+        ESP_LOGI("RLambda2", "Timed Charge 2 value out of bounds");
+        id(timed_charge_2).publish_state("");
+        return NAN;
+      }
+
+      // Convert to string and push to the text template
+      id(timed_charge_2).publish_state(str_sprintf("%02u:%02u-%02u:%02u", s_hours, s_mins, e_hours, e_mins));
+
+      ESP_LOGI("RLambda2", "Read2: %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
+      return ((((uint32_t)s_hours * 100) + (uint32_t)s_mins) * 10000) +
+             ((((uint32_t)e_hours * 100) + (uint32_t)e_mins));
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    id: timed_charge_3_internal
+    name: "Timed Charge 3 (internal)"
+    address: 43163
+    register_count: 4
+    register_type: holding
+    value_type: U_WORD  # irrelevant because of the register_count override but meh
+    skip_updates: 10      # Doesn't change frequently, update every 10 updates
+    internal: true
+
+    lambda: |-
+      // data here is bytes, modbus registers are words, msb first
+      uint16_t s_hours = (data[item->offset+0] << 8) | (data[item->offset+1]);
+      uint16_t s_mins  = (data[item->offset+2] << 8) | (data[item->offset+3]);
+      uint16_t e_hours = (data[item->offset+4] << 8) | (data[item->offset+5]);
+      uint16_t e_mins  = (data[item->offset+6] << 8) | (data[item->offset+7]);
+
+      if ((s_hours < 0) || (s_hours > 23) || (s_mins < 0) || (s_mins > 59) ||
+          (e_hours < 0) || (e_hours > 23) || (e_mins < 0) || (e_mins > 59))
+      {
+        ESP_LOGI("RLambda3", "Timed Charge 3 value out of bounds");
+        id(timed_charge_3).publish_state("");
+        return NAN;
+      }
+
+      // Convert to string and push to the text template
+      id(timed_charge_3).publish_state(str_sprintf("%02u:%02u-%02u:%02u", s_hours, s_mins, e_hours, e_mins));
+
+      ESP_LOGI("RLambda3", "Read3: %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
+      // Update the internal state too
+      return ((((uint32_t)s_hours * 100) + (uint32_t)s_mins) * 10000) +
+             ((((uint32_t)e_hours * 100) + (uint32_t)e_mins));
+
+text:
+  - platform: template
+    name: "Timed Charge 1"
+    id: timed_charge_1
+    optimistic: false
+    mode: TEXT
+    setup_priority: -100
+    set_action: 
+      then:
+        - lambda: |-
+            ESP_LOGI("WLambda1", "Write Lambda entry: '%s'", x.c_str());
+            // New value is in the "x" variable
+            unsigned int s_hours, s_mins, e_hours, e_mins;
+            if (sscanf(x.c_str(), "%02u:%02u-%02u:%02u", &s_hours, &s_mins, &e_hours, &e_mins) != 4) {
+              ESP_LOGI("WLambda1", "Bad format");
+              return;
+            }
+            ESP_LOGI("WLambda1", "Write Lambda %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
+            if ((s_hours < 0) || (s_hours > 23) || (s_mins < 0) || (s_mins > 59) ||
+                (e_hours < 0) || (e_hours > 23) || (e_mins < 0) || (e_mins > 59))
+            {
+              ESP_LOGI("WLambda1", "Values out of bounds");
+              return;
+            }
+
+            esphome::modbus_controller::ModbusController *controller = id(modbus_master);
+
+            // create the payload
+            std::vector<uint16_t> payload = {
+              (uint16_t)s_hours, (uint16_t)s_mins, 
+              (uint16_t)e_hours, (uint16_t)e_mins,
+              0, 0,
+              0, 0
+              };
+
+            // Create a modbus command item with the time information as the payload
+            esphome::modbus_controller::ModbusCommandItem set_timer_command =
+                esphome::modbus_controller::ModbusCommandItem::create_write_multiple_command(controller, 43143, 8, payload);
+            // Submit the command to the send queue
+            controller->queue_command(set_timer_command);
+            ESP_LOGI("WLambda1", "Timer1 set to %02u:%02u - %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
+  - platform: template
+    name: "Timed Charge 2"
+    id: timed_charge_2
+    optimistic: false
+    mode: TEXT
+    setup_priority: -100
+    set_action: 
+      then:
+        - lambda: |-
+            ESP_LOGI("WLambda2", "Write Lambda entry: '%s'", x.c_str());
+            // New value is in the "x" variable
+            unsigned int s_hours, s_mins, e_hours, e_mins;
+            if (sscanf(x.c_str(), "%02u:%02u-%02u:%02u", &s_hours, &s_mins, &e_hours, &e_mins) != 4) {
+              ESP_LOGI("WLambda", "Bad format");
+              return;
+            }
+            ESP_LOGI("WLambda2", "Write Lambda %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
+            if ((s_hours < 0) || (s_hours > 23) || (s_mins < 0) || (s_mins > 59) ||
+                (e_hours < 0) || (e_hours > 23) || (e_mins < 0) || (e_mins > 59))
+            {
+              ESP_LOGI("WLambda2", "Values out of bounds");
+              return;
+            }
+
+            esphome::modbus_controller::ModbusController *controller = id(modbus_master);
+
+            // create the payload
+            std::vector<uint16_t> payload = {
+              (uint16_t)s_hours, (uint16_t)s_mins, 
+              (uint16_t)e_hours, (uint16_t)e_mins,
+              0, 0,
+              0, 0
+              };
+
+            // Create a modbus command item with the time information as the payload
+            esphome::modbus_controller::ModbusCommandItem set_timer_command =
+                esphome::modbus_controller::ModbusCommandItem::create_write_multiple_command(controller, 43153, 8, payload);
+            // Submit the command to the send queue
+            controller->queue_command(set_timer_command);
+            ESP_LOGI("WLambda2", "Timer2 set to %02u:%02u - %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
+  - platform: template
+    name: "Timed Charge 3"
+    id: timed_charge_3
+    optimistic: false
+    mode: TEXT
+    setup_priority: -100
+    set_action: 
+      then:
+        - lambda: |-
+            ESP_LOGI("WLambda", "Write Lambda entry: '%s'", x.c_str());
+            // New value is in the "x" variable
+            unsigned int s_hours, s_mins, e_hours, e_mins;
+            if (sscanf(x.c_str(), "%02u:%02u-%02u:%02u", &s_hours, &s_mins, &e_hours, &e_mins) != 4) {
+              ESP_LOGI("WLambda3", "Bad format");
+              return;
+            }
+            ESP_LOGI("WLambda3", "Write Lambda %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
+            if ((s_hours < 0) || (s_hours > 23) || (s_mins < 0) || (s_mins > 59) ||
+                (e_hours < 0) || (e_hours > 23) || (e_mins < 0) || (e_mins > 59))
+            {
+              ESP_LOGI("WLambda3", "Values out of bounds");
+              return;
+            }
+
+            esphome::modbus_controller::ModbusController *controller = id(modbus_master);
+
+            // create the payload -- charge start h, start m, end h, end m -- then same for discharge
+            std::vector<uint16_t> payload = {
+              (uint16_t)s_hours, (uint16_t)s_mins, 
+              (uint16_t)e_hours, (uint16_t)e_mins,
+              0, 0,
+              0, 0
+              };
+
+            // Create a modbus command item with the time information as the payload
+            esphome::modbus_controller::ModbusCommandItem set_timer_command =
+                esphome::modbus_controller::ModbusCommandItem::create_write_multiple_command(controller, 43163, 8, payload);
+            // Submit the command to the send queue
+            controller->queue_command(set_timer_command);
+            ESP_LOGI("WLambda3", "Timer3 set to %02u:%02u - %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
