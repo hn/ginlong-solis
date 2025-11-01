@@ -1,8 +1,18 @@
 #
-# Timer extension for Solis
+# solis-modbus-esinv-addon-timer.yaml -- timers for battery charge and discharge periods
+# include file
 #
-# Requires a time object called "network_time"
+# ! This file is to be included as a package in an ESPHome definition !
 #
+# (C) 2025 Phil
+#
+# https://github.com/philpem
+
+# For the inverter to honour this, it must be in Self Use mode, and the
+# Self Use timers need to be enabled. This can be done via a Modbus
+# write (the Solis Exporter documentation explains how to do it) or via
+# the HMI interface on the inverter (go into advanced settings, enter PIN,
+# energy storage mode, all off except Self Use, enable Time Of Use).
 
 # Timer settings are a bit "fun" and not documented in the Modbus spec.
 # For protocol info, see -
