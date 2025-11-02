@@ -37,7 +37,7 @@ A bit strange, you have to [connect the RX pin of the `HW-0519` adapter to the R
 ### Software (ESPHome)
 
 Especially recommended if you use Home Assistant, [solis-esphome-esp8266.yaml](solis-esphome-esp8266.yaml) is an ready-to-use
-configuration file for [ESPHome](https://esphome.io/), using an ESP8266. With the [ESPHome dashboard](https://esphome.io/guides/getting_started_hassio.html)
+configuration file for [ESPHome](https://esphome.io/), using an ESP8266. With the [ESPHome Device Builder](https://esphome.io/guides/getting_started_hassio/#installing-esphome-device-builder)
 you can easily set up your system with just a few clicks via a user-friendly web interface.
 
 ### Software (Arduino)
@@ -302,7 +302,7 @@ relevant status and statistics data from your Solis inverter and push it to Home
 
 Install the ESPHome firmware for the S3 stick as follows:
 
-1. Install the [ESPHome dashboard](https://esphome.io/guides/getting_started_hassio.html#installing-esphome-dashboard) for Home Assistant (at least version 2023.9.0).
+1. Install the [ESPHome Device Builder](https://esphome.io/guides/getting_started_hassio/#installing-esphome-device-builder) for Home Assistant (at least version 2023.9.0).
 1. If you not already have one, add a `secrets.yaml` to the ESPHome addon, containing at least `wifi_ssid`, `wifi_password`, `wifi_ap_ssid`, `wifi_ap_password`, `api_encryption_key` and `ota_password`.
 1. Add [solis-esphome-emw3080.yaml](solis-esphome-emw3080.yaml) to the ESPHome addon.
 1. Depending on your device type (standard inverter `INV`, hybrid inverter `ESINV` or export power manager `EPM`),
