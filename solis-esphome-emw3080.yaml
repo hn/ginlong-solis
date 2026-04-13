@@ -3,7 +3,7 @@
 #
 # The hardware described in this file (MCU and GPIO) corresponds to that of the Solis S3 WiFi stick.
 #
-# (C) 2023-2024 Hajo Noerenberg
+# (C) 2023-2026 Hajo Noerenberg
 #
 # Usage:
 #   1. Depending on your type of device (INV, ESINV or EPM),
@@ -11,6 +11,10 @@
 #   2. Compile and upload
 #      https://docs.libretiny.eu/docs/projects/esphome/#build-upload
 #
+# Important:
+#   Some versions of ESPHome and/or LibreTiny are buggy, check
+#   https://github.com/hn/ginlong-solis/issues and especially
+#   https://github.com/hn/ginlong-solis/issues/76 for advice.
 #
 # http://www.noerenberg.de/
 # https://github.com/hn/ginlong-solis
@@ -41,7 +45,7 @@ esphome:
 rtl87xx:
   board: generic-rtl8710bx-4mb-980k
   framework:
-    version: 1.10.0
+    version: latest
 
 logger:
 
