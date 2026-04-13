@@ -41,7 +41,7 @@ esphome:
 rtl87xx:
   board: generic-rtl8710bx-4mb-980k
   framework:
-    version: latest
+    version: 1.10.0
 
 logger:
 
