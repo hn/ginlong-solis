@@ -567,7 +567,7 @@ text_sensor:
     icon: mdi:earth
     skip_updates: 10
     lambda: |-
-      uint16_t value = modbus_controller::word_from_hex_str(x, 0);
+      uint16_t value = modbus::helpers::word_from_hex_str(x, 0);
       switch (value) {
         /* Solis Spec Appendix 3 */
         case 0x003: return std::string("VDE0126");
@@ -588,7 +588,7 @@ text_sensor:
     lambda: |-
       char serialnumber[4 * 4 + 1];
       for (int j = 0; j < 4; j++) {
-        unsigned int r = esphome::modbus_controller::word_from_hex_str(x, j * 2);;
+        unsigned int r = esphome::modbus::helpers::word_from_hex_str(x, j * 2);;
         sprintf(serialnumber + (j * 4), "%02x%02x",
           (r & 0x0F) << 4 | (r & 0xF0) >> 4, (r & 0x0F00) >> 4 | (r & 0xF000) >> 12);
       }
