@@ -26,6 +26,9 @@
 # Energy Storage Mode is set via register 43110 (Energy storage control switch).
 #  Value 33 is "Self Use, Spontaneous mode",
 #        35 is "Self Use, Optimised Revenie mode (timed chg/dis)"
+#  Note: at least some inverters reject "Write Single Register" (function 06)
+#  entirely, so a modbus_controller select/number for register 43110 needs
+#  `use_write_multiple: true` to work.
 #
 # Timers are stored as 8x consecutive U16 Modbus holding variables starting at:
 #   - 43143 (Timer 1)
@@ -44,8 +47,13 @@
 # Start Hr/Min and Charge Stop Hr/Min must be written in a single Write
 # Multiple Registers command. I assume this is the same for the Discharge timer.
 #
-# Of course, you can write the charge and discharge timers at the same time if
-# you like.
+# Each "Timed Charge N" / "Timed Discharge N" text entity accepts "HH:MM-HH:MM"
+# ("00:00-00:00" disables that half). Because the charge and discharge halves
+# share one 8-register block, every write sends all 8 registers and preserves
+# the other half from its entity state (which is why the text entities are
+# `optimistic` -- back-to-back writes then compose correctly, and the periodic
+# read re-syncs the state from the inverter). Timed discharge is useful to
+# force battery export during an export-price peak (e.g. Octopus Flux).
 
 sensor:
   - platform: modbus_controller
@@ -78,6 +86,40 @@ sensor:
       id(timed_charge_1).publish_state(str_sprintf("%02u:%02u-%02u:%02u", s_hours, s_mins, e_hours, e_mins));
 
       ESP_LOGI("RLambda1", "Read1: %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
+      return ((((uint32_t)s_hours * 100) + (uint32_t)s_mins) * 10000) +
+             ((((uint32_t)e_hours * 100) + (uint32_t)e_mins));
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    id: timed_discharge_1_internal
+    name: "Timed Discharge 1 (internal)"
+    address: 43147
+    register_count: 4
+    register_type: holding
+    value_type: U_WORD  # irrelevant because of the register_count override but meh
+    skip_updates: 10      # Doesn't change frequently, update every 10 updates
+    internal: true
+
+    lambda: |-
+      // data here is bytes, modbus registers are words, msb first
+      uint16_t s_hours = (data[item->offset+0] << 8) | (data[item->offset+1]);
+      uint16_t s_mins  = (data[item->offset+2] << 8) | (data[item->offset+3]);
+      uint16_t e_hours = (data[item->offset+4] << 8) | (data[item->offset+5]);
+      uint16_t e_mins  = (data[item->offset+6] << 8) | (data[item->offset+7]);
+
+      if ((s_hours < 0) || (s_hours > 23) || (s_mins < 0) || (s_mins > 59) ||
+          (e_hours < 0) || (e_hours > 23) || (e_mins < 0) || (e_mins > 59))
+      {
+        ESP_LOGI("RLambda1d", "Timed Discharge 1 value out of bounds");
+        id(timed_discharge_1).publish_state("");
+        return NAN;
+      }
+
+      // Convert to string and push to the text template
+      id(timed_discharge_1).publish_state(str_sprintf("%02u:%02u-%02u:%02u", s_hours, s_mins, e_hours, e_mins));
+
+      ESP_LOGI("RLambda1d", "Read1d: %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
 
       return ((((uint32_t)s_hours * 100) + (uint32_t)s_mins) * 10000) +
              ((((uint32_t)e_hours * 100) + (uint32_t)e_mins));
@@ -118,6 +160,40 @@ sensor:
 
   - platform: modbus_controller
     modbus_controller_id: modbus_master
+    id: timed_discharge_2_internal
+    name: "Timed Discharge 2 (internal)"
+    address: 43157
+    register_count: 4
+    register_type: holding
+    value_type: U_WORD  # irrelevant because of the register_count override but meh
+    skip_updates: 10      # Doesn't change frequently, update every 10 updates
+    internal: true
+
+    lambda: |-
+      // data here is bytes, modbus registers are words, msb first
+      uint16_t s_hours = (data[item->offset+0] << 8) | (data[item->offset+1]);
+      uint16_t s_mins  = (data[item->offset+2] << 8) | (data[item->offset+3]);
+      uint16_t e_hours = (data[item->offset+4] << 8) | (data[item->offset+5]);
+      uint16_t e_mins  = (data[item->offset+6] << 8) | (data[item->offset+7]);
+
+      if ((s_hours < 0) || (s_hours > 23) || (s_mins < 0) || (s_mins > 59) ||
+          (e_hours < 0) || (e_hours > 23) || (e_mins < 0) || (e_mins > 59))
+      {
+        ESP_LOGI("RLambda2d", "Timed Discharge 2 value out of bounds");
+        id(timed_discharge_2).publish_state("");
+        return NAN;
+      }
+
+      // Convert to string and push to the text template
+      id(timed_discharge_2).publish_state(str_sprintf("%02u:%02u-%02u:%02u", s_hours, s_mins, e_hours, e_mins));
+
+      ESP_LOGI("RLambda2d", "Read2d: %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
+      return ((((uint32_t)s_hours * 100) + (uint32_t)s_mins) * 10000) +
+             ((((uint32_t)e_hours * 100) + (uint32_t)e_mins));
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
     id: timed_charge_3_internal
     name: "Timed Charge 3 (internal)"
     address: 43163
@@ -151,14 +227,52 @@ sensor:
       return ((((uint32_t)s_hours * 100) + (uint32_t)s_mins) * 10000) +
              ((((uint32_t)e_hours * 100) + (uint32_t)e_mins));
 
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    id: timed_discharge_3_internal
+    name: "Timed Discharge 3 (internal)"
+    address: 43167
+    register_count: 4
+    register_type: holding
+    value_type: U_WORD  # irrelevant because of the register_count override but meh
+    skip_updates: 10      # Doesn't change frequently, update every 10 updates
+    internal: true
+
+    lambda: |-
+      // data here is bytes, modbus registers are words, msb first
+      uint16_t s_hours = (data[item->offset+0] << 8) | (data[item->offset+1]);
+      uint16_t s_mins  = (data[item->offset+2] << 8) | (data[item->offset+3]);
+      uint16_t e_hours = (data[item->offset+4] << 8) | (data[item->offset+5]);
+      uint16_t e_mins  = (data[item->offset+6] << 8) | (data[item->offset+7]);
+
+      if ((s_hours < 0) || (s_hours > 23) || (s_mins < 0) || (s_mins > 59) ||
+          (e_hours < 0) || (e_hours > 23) || (e_mins < 0) || (e_mins > 59))
+      {
+        ESP_LOGI("RLambda3d", "Timed Discharge 3 value out of bounds");
+        id(timed_discharge_3).publish_state("");
+        return NAN;
+      }
+
+      // Convert to string and push to the text template
+      id(timed_discharge_3).publish_state(str_sprintf("%02u:%02u-%02u:%02u", s_hours, s_mins, e_hours, e_mins));
+
+      ESP_LOGI("RLambda3d", "Read3d: %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
+      return ((((uint32_t)s_hours * 100) + (uint32_t)s_mins) * 10000) +
+             ((((uint32_t)e_hours * 100) + (uint32_t)e_mins));
+
 text:
   - platform: template
     name: "Timed Charge 1"
     id: timed_charge_1
-    optimistic: false
+    # optimistic so the state updates immediately on set: charge and discharge
+    # share one register block and each write preserves the other half from its
+    # entity state, so back-to-back writes must see fresh values. The periodic
+    # read (above) re-syncs the state from the inverter.
+    optimistic: true
     mode: TEXT
     setup_priority: -100
-    set_action: 
+    set_action:
       then:
         - lambda: |-
             ESP_LOGI("WLambda1", "Write Lambda entry: '%s'", x.c_str());
@@ -177,14 +291,24 @@ text:
               return;
             }
 
+            // Preserve the discharge half (registers +4..+7) from its entity
+            // state; falls back to 00:00-00:00 if it has not been populated
+            // from the inverter yet (e.g. right after boot).
+            unsigned int d_s_hours = 0, d_s_mins = 0, d_e_hours = 0, d_e_mins = 0;
+            if (sscanf(id(timed_discharge_1).state.c_str(), "%02u:%02u-%02u:%02u",
+                       &d_s_hours, &d_s_mins, &d_e_hours, &d_e_mins) != 4) {
+              ESP_LOGW("WLambda1", "Timed Discharge 1 state unknown, writing 00:00-00:00 for discharge half");
+              d_s_hours = 0; d_s_mins = 0; d_e_hours = 0; d_e_mins = 0;
+            }
+
             esphome::modbus_controller::ModbusController *controller = id(modbus_master);
 
             // create the payload
             std::vector<uint16_t> payload = {
-              (uint16_t)s_hours, (uint16_t)s_mins, 
+              (uint16_t)s_hours, (uint16_t)s_mins,
               (uint16_t)e_hours, (uint16_t)e_mins,
-              0, 0,
-              0, 0
+              (uint16_t)d_s_hours, (uint16_t)d_s_mins,
+              (uint16_t)d_e_hours, (uint16_t)d_e_mins
               };
 
             // Create a modbus command item with the time information as the payload
@@ -195,19 +319,71 @@ text:
             ESP_LOGI("WLambda1", "Timer1 set to %02u:%02u - %02u:%02u", s_hours, s_mins, e_hours, e_mins);
 
   - platform: template
-    name: "Timed Charge 2"
-    id: timed_charge_2
-    optimistic: false
+    name: "Timed Discharge 1"
+    id: timed_discharge_1
+    optimistic: true
     mode: TEXT
     setup_priority: -100
-    set_action: 
+    set_action:
+      then:
+        - lambda: |-
+            ESP_LOGI("WLambda1d", "Write Lambda entry: '%s'", x.c_str());
+            // New value is in the "x" variable
+            unsigned int s_hours, s_mins, e_hours, e_mins;
+            if (sscanf(x.c_str(), "%02u:%02u-%02u:%02u", &s_hours, &s_mins, &e_hours, &e_mins) != 4) {
+              ESP_LOGI("WLambda1d", "Bad format");
+              return;
+            }
+            ESP_LOGI("WLambda1d", "Write Lambda %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
+            if ((s_hours < 0) || (s_hours > 23) || (s_mins < 0) || (s_mins > 59) ||
+                (e_hours < 0) || (e_hours > 23) || (e_mins < 0) || (e_mins > 59))
+            {
+              ESP_LOGI("WLambda1d", "Values out of bounds");
+              return;
+            }
+
+            // Preserve the charge half (registers +0..+3) from its entity
+            // state; falls back to 00:00-00:00 if it has not been populated
+            // from the inverter yet (e.g. right after boot).
+            unsigned int c_s_hours = 0, c_s_mins = 0, c_e_hours = 0, c_e_mins = 0;
+            if (sscanf(id(timed_charge_1).state.c_str(), "%02u:%02u-%02u:%02u",
+                       &c_s_hours, &c_s_mins, &c_e_hours, &c_e_mins) != 4) {
+              ESP_LOGW("WLambda1d", "Timed Charge 1 state unknown, writing 00:00-00:00 for charge half");
+              c_s_hours = 0; c_s_mins = 0; c_e_hours = 0; c_e_mins = 0;
+            }
+
+            esphome::modbus_controller::ModbusController *controller = id(modbus_master);
+
+            // create the payload
+            std::vector<uint16_t> payload = {
+              (uint16_t)c_s_hours, (uint16_t)c_s_mins,
+              (uint16_t)c_e_hours, (uint16_t)c_e_mins,
+              (uint16_t)s_hours, (uint16_t)s_mins,
+              (uint16_t)e_hours, (uint16_t)e_mins
+              };
+
+            // Create a modbus command item with the time information as the payload
+            esphome::modbus_controller::ModbusCommandItem set_timer_command =
+                esphome::modbus_controller::ModbusCommandItem::create_write_multiple_command(controller, 43143, 8, payload);
+            // Submit the command to the send queue
+            controller->queue_command(set_timer_command);
+            ESP_LOGI("WLambda1d", "Timer1 discharge set to %02u:%02u - %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
+  - platform: template
+    name: "Timed Charge 2"
+    id: timed_charge_2
+    optimistic: true
+    mode: TEXT
+    setup_priority: -100
+    set_action:
       then:
         - lambda: |-
             ESP_LOGI("WLambda2", "Write Lambda entry: '%s'", x.c_str());
             // New value is in the "x" variable
             unsigned int s_hours, s_mins, e_hours, e_mins;
             if (sscanf(x.c_str(), "%02u:%02u-%02u:%02u", &s_hours, &s_mins, &e_hours, &e_mins) != 4) {
-              ESP_LOGI("WLambda", "Bad format");
+              ESP_LOGI("WLambda2", "Bad format");
               return;
             }
             ESP_LOGI("WLambda2", "Write Lambda %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
@@ -219,14 +395,24 @@ text:
               return;
             }
 
+            // Preserve the discharge half (registers +4..+7) from its entity
+            // state; falls back to 00:00-00:00 if it has not been populated
+            // from the inverter yet (e.g. right after boot).
+            unsigned int d_s_hours = 0, d_s_mins = 0, d_e_hours = 0, d_e_mins = 0;
+            if (sscanf(id(timed_discharge_2).state.c_str(), "%02u:%02u-%02u:%02u",
+                       &d_s_hours, &d_s_mins, &d_e_hours, &d_e_mins) != 4) {
+              ESP_LOGW("WLambda2", "Timed Discharge 2 state unknown, writing 00:00-00:00 for discharge half");
+              d_s_hours = 0; d_s_mins = 0; d_e_hours = 0; d_e_mins = 0;
+            }
+
             esphome::modbus_controller::ModbusController *controller = id(modbus_master);
 
             // create the payload
             std::vector<uint16_t> payload = {
-              (uint16_t)s_hours, (uint16_t)s_mins, 
+              (uint16_t)s_hours, (uint16_t)s_mins,
               (uint16_t)e_hours, (uint16_t)e_mins,
-              0, 0,
-              0, 0
+              (uint16_t)d_s_hours, (uint16_t)d_s_mins,
+              (uint16_t)d_e_hours, (uint16_t)d_e_mins
               };
 
             // Create a modbus command item with the time information as the payload
@@ -237,15 +423,67 @@ text:
             ESP_LOGI("WLambda2", "Timer2 set to %02u:%02u - %02u:%02u", s_hours, s_mins, e_hours, e_mins);
 
   - platform: template
-    name: "Timed Charge 3"
-    id: timed_charge_3
-    optimistic: false
+    name: "Timed Discharge 2"
+    id: timed_discharge_2
+    optimistic: true
     mode: TEXT
     setup_priority: -100
-    set_action: 
+    set_action:
       then:
         - lambda: |-
-            ESP_LOGI("WLambda", "Write Lambda entry: '%s'", x.c_str());
+            ESP_LOGI("WLambda2d", "Write Lambda entry: '%s'", x.c_str());
+            // New value is in the "x" variable
+            unsigned int s_hours, s_mins, e_hours, e_mins;
+            if (sscanf(x.c_str(), "%02u:%02u-%02u:%02u", &s_hours, &s_mins, &e_hours, &e_mins) != 4) {
+              ESP_LOGI("WLambda2d", "Bad format");
+              return;
+            }
+            ESP_LOGI("WLambda2d", "Write Lambda %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
+            if ((s_hours < 0) || (s_hours > 23) || (s_mins < 0) || (s_mins > 59) ||
+                (e_hours < 0) || (e_hours > 23) || (e_mins < 0) || (e_mins > 59))
+            {
+              ESP_LOGI("WLambda2d", "Values out of bounds");
+              return;
+            }
+
+            // Preserve the charge half (registers +0..+3) from its entity
+            // state; falls back to 00:00-00:00 if it has not been populated
+            // from the inverter yet (e.g. right after boot).
+            unsigned int c_s_hours = 0, c_s_mins = 0, c_e_hours = 0, c_e_mins = 0;
+            if (sscanf(id(timed_charge_2).state.c_str(), "%02u:%02u-%02u:%02u",
+                       &c_s_hours, &c_s_mins, &c_e_hours, &c_e_mins) != 4) {
+              ESP_LOGW("WLambda2d", "Timed Charge 2 state unknown, writing 00:00-00:00 for charge half");
+              c_s_hours = 0; c_s_mins = 0; c_e_hours = 0; c_e_mins = 0;
+            }
+
+            esphome::modbus_controller::ModbusController *controller = id(modbus_master);
+
+            // create the payload
+            std::vector<uint16_t> payload = {
+              (uint16_t)c_s_hours, (uint16_t)c_s_mins,
+              (uint16_t)c_e_hours, (uint16_t)c_e_mins,
+              (uint16_t)s_hours, (uint16_t)s_mins,
+              (uint16_t)e_hours, (uint16_t)e_mins
+              };
+
+            // Create a modbus command item with the time information as the payload
+            esphome::modbus_controller::ModbusCommandItem set_timer_command =
+                esphome::modbus_controller::ModbusCommandItem::create_write_multiple_command(controller, 43153, 8, payload);
+            // Submit the command to the send queue
+            controller->queue_command(set_timer_command);
+            ESP_LOGI("WLambda2d", "Timer2 discharge set to %02u:%02u - %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
+  - platform: template
+    name: "Timed Charge 3"
+    id: timed_charge_3
+    optimistic: true
+    mode: TEXT
+    setup_priority: -100
+    set_action:
+      then:
+        - lambda: |-
+            ESP_LOGI("WLambda3", "Write Lambda entry: '%s'", x.c_str());
             // New value is in the "x" variable
             unsigned int s_hours, s_mins, e_hours, e_mins;
             if (sscanf(x.c_str(), "%02u:%02u-%02u:%02u", &s_hours, &s_mins, &e_hours, &e_mins) != 4) {
@@ -261,14 +499,24 @@ text:
               return;
             }
 
+            // Preserve the discharge half (registers +4..+7) from its entity
+            // state; falls back to 00:00-00:00 if it has not been populated
+            // from the inverter yet (e.g. right after boot).
+            unsigned int d_s_hours = 0, d_s_mins = 0, d_e_hours = 0, d_e_mins = 0;
+            if (sscanf(id(timed_discharge_3).state.c_str(), "%02u:%02u-%02u:%02u",
+                       &d_s_hours, &d_s_mins, &d_e_hours, &d_e_mins) != 4) {
+              ESP_LOGW("WLambda3", "Timed Discharge 3 state unknown, writing 00:00-00:00 for discharge half");
+              d_s_hours = 0; d_s_mins = 0; d_e_hours = 0; d_e_mins = 0;
+            }
+
             esphome::modbus_controller::ModbusController *controller = id(modbus_master);
 
             // create the payload -- charge start h, start m, end h, end m -- then same for discharge
             std::vector<uint16_t> payload = {
-              (uint16_t)s_hours, (uint16_t)s_mins, 
+              (uint16_t)s_hours, (uint16_t)s_mins,
               (uint16_t)e_hours, (uint16_t)e_mins,
-              0, 0,
-              0, 0
+              (uint16_t)d_s_hours, (uint16_t)d_s_mins,
+              (uint16_t)d_e_hours, (uint16_t)d_e_mins
               };
 
             // Create a modbus command item with the time information as the payload
@@ -278,3 +526,54 @@ text:
             controller->queue_command(set_timer_command);
             ESP_LOGI("WLambda3", "Timer3 set to %02u:%02u - %02u:%02u", s_hours, s_mins, e_hours, e_mins);
 
+  - platform: template
+    name: "Timed Discharge 3"
+    id: timed_discharge_3
+    optimistic: true
+    mode: TEXT
+    setup_priority: -100
+    set_action:
+      then:
+        - lambda: |-
+            ESP_LOGI("WLambda3d", "Write Lambda entry: '%s'", x.c_str());
+            // New value is in the "x" variable
+            unsigned int s_hours, s_mins, e_hours, e_mins;
+            if (sscanf(x.c_str(), "%02u:%02u-%02u:%02u", &s_hours, &s_mins, &e_hours, &e_mins) != 4) {
+              ESP_LOGI("WLambda3d", "Bad format");
+              return;
+            }
+            ESP_LOGI("WLambda3d", "Write Lambda %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
+            if ((s_hours < 0) || (s_hours > 23) || (s_mins < 0) || (s_mins > 59) ||
+                (e_hours < 0) || (e_hours > 23) || (e_mins < 0) || (e_mins > 59))
+            {
+              ESP_LOGI("WLambda3d", "Values out of bounds");
+              return;
+            }
+
+            // Preserve the charge half (registers +0..+3) from its entity
+            // state; falls back to 00:00-00:00 if it has not been populated
+            // from the inverter yet (e.g. right after boot).
+            unsigned int c_s_hours = 0, c_s_mins = 0, c_e_hours = 0, c_e_mins = 0;
+            if (sscanf(id(timed_charge_3).state.c_str(), "%02u:%02u-%02u:%02u",
+                       &c_s_hours, &c_s_mins, &c_e_hours, &c_e_mins) != 4) {
+              ESP_LOGW("WLambda3d", "Timed Charge 3 state unknown, writing 00:00-00:00 for charge half");
+              c_s_hours = 0; c_s_mins = 0; c_e_hours = 0; c_e_mins = 0;
+            }
+
+            esphome::modbus_controller::ModbusController *controller = id(modbus_master);
+
+            // create the payload
+            std::vector<uint16_t> payload = {
+              (uint16_t)c_s_hours, (uint16_t)c_s_mins,
+              (uint16_t)c_e_hours, (uint16_t)c_e_mins,
+              (uint16_t)s_hours, (uint16_t)s_mins,
+              (uint16_t)e_hours, (uint16_t)e_mins
+              };
+
+            // Create a modbus command item with the time information as the payload
+            esphome::modbus_controller::ModbusCommandItem set_timer_command =
+                esphome::modbus_controller::ModbusCommandItem::create_write_multiple_command(controller, 43163, 8, payload);
+            // Submit the command to the send queue
+            controller->queue_command(set_timer_command);
+            ESP_LOGI("WLambda3d", "Timer3 discharge set to %02u:%02u - %02u:%02u", s_hours, s_mins, e_hours, e_mins);
