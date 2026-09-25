@@ -34,7 +34,7 @@ number:
     unit_of_measurement: '%'
     entity_category: config
     icon: mdi:percent
-    skip_updates: 10
+
     mode: box
     min_value: 0
     max_value: 110
@@ -48,7 +48,7 @@ select:
     value_type: U_WORD
     entity_category: config
     icon: mdi:cog-outline
-    skip_updates: 10
+
     optionsmap:
       "No response mode": 0
       "Volt-Watt default": 1
@@ -149,8 +149,8 @@ sensor:
     register_type: read
     address: 3008 # = 3009 - 1
     value_type: U_DWORD
-    force_new_range: true # workaround to seperate reg 3006: "skip_updates applies for all components in the same range"
-    skip_updates: 10
+    reuse_previous_range: false # workaround to seperate reg 3006: "skip_updates applies for all components in the same range"
+
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Energy this month
@@ -160,7 +160,7 @@ sensor:
     register_type: read
     address: 3010 # = 3011 - 1
     value_type: U_DWORD
-    skip_updates: 10
+
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Energy last month
@@ -170,7 +170,7 @@ sensor:
     register_type: read
     address: 3012 # = 3013 - 1
     value_type: U_DWORD
-    skip_updates: 10
+
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Energy today
@@ -183,7 +183,7 @@ sensor:
     accuracy_decimals: 1
     filters:
       - multiply: 0.1
-    skip_updates: 10
+
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Energy last day
@@ -196,7 +196,7 @@ sensor:
     accuracy_decimals: 1
     filters:
       - multiply: 0.1
-    skip_updates: 10
+
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: DC voltage 1
@@ -292,18 +292,18 @@ text_sensor:
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:factory
-    skip_updates: 10
+
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: DSP software version
     register_type: read
     address: 3000 # = 3001 - 1
     response_size: 2
-    force_new_range: true # workaround for bug concatening model, dsp and lcd
+    reuse_previous_range: false # workaround for bug concatening model, dsp and lcd
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:chip
-    skip_updates: 10
+
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: LCD software version
@@ -313,7 +313,7 @@ text_sensor:
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:chip
-    skip_updates: 10
+
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Country standard code
@@ -323,7 +323,7 @@ text_sensor:
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:earth
-    skip_updates: 10
+
     lambda: |-
       uint16_t value = modbus::helpers::word_from_hex_str(x, 0);
       switch (value) {
@@ -338,11 +338,11 @@ text_sensor:
     name: Inverter SN
     register_type: read
     address: 3060 # = 3061 - 1
-    register_count: 4
+    response_size: 8
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:numeric
-    skip_updates: 10
+
     lambda: |-
       char serialnumber[2 * 8 + 1];
       for (int j = 0; j < 8; j++) {
@@ -356,11 +356,11 @@ text_sensor:
     id: inverter_rtc
     register_type: holding
     address: 2999 # = 3000 - 1
-    register_count: 6
+    response_size: 12
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:clock-digital
-    skip_updates: 10
+
     lambda: |-
       time_t i_t;
       struct tm i_tm = { 0 };
@@ -376,12 +376,12 @@ text_sensor:
         i_tm.tm_hour, i_tm.tm_min, i_tm.tm_sec, i_tm.tm_year + 1900, i_tm.tm_mon + 1, i_tm.tm_mday);
       auto s_espt = id(network_time).now();
       if (s_espt.is_valid()) {
-        double deviation = difftime(i_t, s_espt.timestamp);
+        double deviation = difftime(i_t, s_espt.timestamp + s_espt.timezone_offset());
         if (abs(deviation) > 42) {
           std::vector<uint16_t> rtc_data =
             {(uint16_t) (s_espt.year % 100), s_espt.month, s_espt.day_of_month, s_espt.hour, s_espt.minute, s_espt.second};
           auto set_rtc_command =
-            modbus_controller::ModbusCommandItem::create_write_multiple_command(modbus_master, item->start_address, item->register_count, rtc_data);
+            modbus_controller::ModbusCommandItem::create_write_multiple_command(modbus_master, item->start_address, rtc_data.size(), rtc_data);
           modbus_master->queue_command(set_rtc_command);
           ESP_LOGI("SyncInverterRTC", "Inverter RTC deviation=%.fs, updated RTC to %02d:%02d:%02d %04d-%02d-%02d",
             deviation, s_espt.hour, s_espt.minute, s_espt.second, s_espt.year, s_espt.month, s_espt.day_of_month);
@@ -399,4 +399,3 @@ text_sensor:
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:chip
-    skip_updates: 10
