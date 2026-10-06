@@ -55,16 +55,15 @@
 # read re-syncs the state from the inverter). Timed discharge is useful to
 # force battery export during an export-price peak (e.g. Octopus Flux).
 
-sensor:
+text_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     id: timed_charge_1_internal
     name: "Timed Charge 1 (internal)"
     address: 43143
-    register_count: 4
     register_type: holding
-    value_type: U_WORD  # irrelevant because of the register_count override but meh
-    skip_updates: 10      # Doesn't change frequently, update every 10 updates
+    response_size: 8
+    raw_encode: HEXBYTES
     internal: true
 
     lambda: |-
@@ -79,7 +78,7 @@ sensor:
       {
         ESP_LOGI("RLambda1", "Timed Charge 1 value out of bounds");
         id(timed_charge_1).publish_state("");
-        return NAN;
+        return x;
       }
 
       // Convert to string and push to the text template
@@ -87,18 +86,16 @@ sensor:
 
       ESP_LOGI("RLambda1", "Read1: %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
 
-      return ((((uint32_t)s_hours * 100) + (uint32_t)s_mins) * 10000) +
-             ((((uint32_t)e_hours * 100) + (uint32_t)e_mins));
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     id: timed_discharge_1_internal
     name: "Timed Discharge 1 (internal)"
     address: 43147
-    register_count: 4
     register_type: holding
-    value_type: U_WORD  # irrelevant because of the register_count override but meh
-    skip_updates: 10      # Doesn't change frequently, update every 10 updates
+    response_size: 8
+    raw_encode: HEXBYTES
     internal: true
 
     lambda: |-
@@ -113,7 +110,7 @@ sensor:
       {
         ESP_LOGI("RLambda1d", "Timed Discharge 1 value out of bounds");
         id(timed_discharge_1).publish_state("");
-        return NAN;
+        return x;
       }
 
       // Convert to string and push to the text template
@@ -121,18 +118,16 @@ sensor:
 
       ESP_LOGI("RLambda1d", "Read1d: %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
 
-      return ((((uint32_t)s_hours * 100) + (uint32_t)s_mins) * 10000) +
-             ((((uint32_t)e_hours * 100) + (uint32_t)e_mins));
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     id: timed_charge_2_internal
     name: "Timed Charge 2 (internal)"
     address: 43153
-    register_count: 4
     register_type: holding
-    value_type: U_WORD  # irrelevant because of the register_count override but meh
-    skip_updates: 10      # Doesn't change frequently, update every 10 updates
+    response_size: 8
+    raw_encode: HEXBYTES
     internal: true
 
     lambda: |-
@@ -147,7 +142,7 @@ sensor:
       {
         ESP_LOGI("RLambda2", "Timed Charge 2 value out of bounds");
         id(timed_charge_2).publish_state("");
-        return NAN;
+        return x;
       }
 
       // Convert to string and push to the text template
@@ -155,18 +150,16 @@ sensor:
 
       ESP_LOGI("RLambda2", "Read2: %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
 
-      return ((((uint32_t)s_hours * 100) + (uint32_t)s_mins) * 10000) +
-             ((((uint32_t)e_hours * 100) + (uint32_t)e_mins));
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     id: timed_discharge_2_internal
     name: "Timed Discharge 2 (internal)"
     address: 43157
-    register_count: 4
     register_type: holding
-    value_type: U_WORD  # irrelevant because of the register_count override but meh
-    skip_updates: 10      # Doesn't change frequently, update every 10 updates
+    response_size: 8
+    raw_encode: HEXBYTES
     internal: true
 
     lambda: |-
@@ -181,7 +174,7 @@ sensor:
       {
         ESP_LOGI("RLambda2d", "Timed Discharge 2 value out of bounds");
         id(timed_discharge_2).publish_state("");
-        return NAN;
+        return x;
       }
 
       // Convert to string and push to the text template
@@ -189,18 +182,16 @@ sensor:
 
       ESP_LOGI("RLambda2d", "Read2d: %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
 
-      return ((((uint32_t)s_hours * 100) + (uint32_t)s_mins) * 10000) +
-             ((((uint32_t)e_hours * 100) + (uint32_t)e_mins));
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     id: timed_charge_3_internal
     name: "Timed Charge 3 (internal)"
     address: 43163
-    register_count: 4
     register_type: holding
-    value_type: U_WORD  # irrelevant because of the register_count override but meh
-    skip_updates: 10      # Doesn't change frequently, update every 10 updates
+    response_size: 8
+    raw_encode: HEXBYTES
     internal: true
 
     lambda: |-
@@ -215,7 +206,7 @@ sensor:
       {
         ESP_LOGI("RLambda3", "Timed Charge 3 value out of bounds");
         id(timed_charge_3).publish_state("");
-        return NAN;
+        return x;
       }
 
       // Convert to string and push to the text template
@@ -223,19 +214,16 @@ sensor:
 
       ESP_LOGI("RLambda3", "Read3: %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
 
-      // Update the internal state too
-      return ((((uint32_t)s_hours * 100) + (uint32_t)s_mins) * 10000) +
-             ((((uint32_t)e_hours * 100) + (uint32_t)e_mins));
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     id: timed_discharge_3_internal
     name: "Timed Discharge 3 (internal)"
     address: 43167
-    register_count: 4
     register_type: holding
-    value_type: U_WORD  # irrelevant because of the register_count override but meh
-    skip_updates: 10      # Doesn't change frequently, update every 10 updates
+    response_size: 8
+    raw_encode: HEXBYTES
     internal: true
 
     lambda: |-
@@ -250,7 +238,7 @@ sensor:
       {
         ESP_LOGI("RLambda3d", "Timed Discharge 3 value out of bounds");
         id(timed_discharge_3).publish_state("");
-        return NAN;
+        return x;
       }
 
       // Convert to string and push to the text template
@@ -258,8 +246,7 @@ sensor:
 
       ESP_LOGI("RLambda3d", "Read3d: %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
 
-      return ((((uint32_t)s_hours * 100) + (uint32_t)s_mins) * 10000) +
-             ((((uint32_t)e_hours * 100) + (uint32_t)e_mins));
+      return x;
 
 text:
   - platform: template

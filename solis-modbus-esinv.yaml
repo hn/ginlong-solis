@@ -34,7 +34,6 @@ number:
     unit_of_measurement: '%'
     entity_category: config
     icon: mdi:percent
-    skip_updates: 10
     mode: box
     min_value: 0
     max_value: 110
@@ -49,7 +48,6 @@ number:
     unit_of_measurement: 'W'
     entity_category: config
     icon: mdi:transmission-tower-import
-    skip_updates: 10
     mode: box
     min_value: 0
     multiply: 0.01
@@ -172,8 +170,7 @@ sensor:
     register_type: read
     address: 33029
     value_type: U_DWORD
-    force_new_range: true # workaround to seperate reg 3006: "skip_updates applies for all components in the same range"
-    skip_updates: 10
+    reuse_previous_range: false
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Energy this month
@@ -183,7 +180,6 @@ sensor:
     register_type: read
     address: 33031
     value_type: U_DWORD
-    skip_updates: 10
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Energy last month
@@ -193,7 +189,6 @@ sensor:
     register_type: read
     address: 33033
     value_type: U_DWORD
-    skip_updates: 10
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Energy today
@@ -206,7 +201,6 @@ sensor:
     accuracy_decimals: 1
     filters:
       - multiply: 0.1
-    skip_updates: 10
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Energy last day
@@ -219,7 +213,6 @@ sensor:
     accuracy_decimals: 1
     filters:
       - multiply: 0.1
-    skip_updates: 10
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: DC voltage 1
@@ -381,7 +374,6 @@ sensor:
     register_type: read
     address: 33139
     value_type: U_WORD
-    skip_updates: 10
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Battery state of health (SoH)
@@ -392,7 +384,6 @@ sensor:
     address: 33140
     value_type: U_WORD
     icon: mdi:battery-heart-variant
-    skip_updates: 10
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Battery charge current limitation
@@ -465,7 +456,6 @@ sensor:
     register_type: read
     address: 33161
     value_type: U_DWORD
-    skip_updates: 10
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Total battery discharge
@@ -475,8 +465,8 @@ sensor:
     register_type: read
     address: 33165
     value_type: U_DWORD
-    skip_updates: 10
     
+text_sensor:
 # The inverter clock is stored in six consecutive Modbus U16 input registers:
 #  INV:
 #   - 33022: Year
@@ -492,10 +482,9 @@ sensor:
     id: inverter_clock
     name: "Inverter clock (internal)"
     address: 33022
-    register_count: 6
     register_type: read
-    value_type: U_WORD  # irrelevant because of the register_count override but meh
-    skip_updates: 10      # Doesn't change frequently, update every 10 updates
+    response_size: 12
+    raw_encode: HEXBYTES
     internal: true
     entity_category: diagnostic
 
@@ -523,7 +512,7 @@ sensor:
           std::vector<uint16_t> rtc_data =
             {(uint16_t) (s_espt.year % 100), s_espt.month, s_espt.day_of_month, s_espt.hour, s_espt.minute, s_espt.second};
           auto set_rtc_command =
-            modbus_controller::ModbusCommandItem::create_write_multiple_command(modbus_master, 43000, item->register_count, rtc_data);
+            modbus_controller::ModbusCommandItem::create_write_multiple_command(modbus_master, 43000, rtc_data.size(), rtc_data);
           modbus_master->queue_command(set_rtc_command);
           ESP_LOGI("SyncInverterRTC", "Inverter RTC deviation=%.fs, updated RTC to %02d:%02d:%02d %04d-%02d-%02d",
             deviation, s_espt.hour, s_espt.minute, s_espt.second, s_espt.year, s_espt.month, s_espt.day_of_month);
@@ -532,9 +521,8 @@ sensor:
         ESP_LOGI("SyncInverterRTC", "Inverter RTC not checked because NTP is not yet synchronised");
       }
 
-      return {};
+      return x;
 
-text_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Product model
@@ -544,18 +532,16 @@ text_sensor:
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:factory
-    skip_updates: 10
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: DSP software version
     register_type: read
     address: 33001
     response_size: 2
-    force_new_range: true # workaround for bug concatenating model, dsp and lcd
+    reuse_previous_range: false # keep model and DSP responses separate
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:chip
-    skip_updates: 10
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Country standard code
@@ -565,7 +551,6 @@ text_sensor:
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:earth
-    skip_updates: 10
     lambda: |-
       uint16_t value = modbus::helpers::word_from_hex_str(x, 0);
       switch (value) {
@@ -580,11 +565,10 @@ text_sensor:
     name: Inverter SN
     register_type: read
     address: 33004
-    register_count: 4
+    response_size: 8
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:numeric
-    skip_updates: 10
     lambda: |-
       char serialnumber[4 * 4 + 1];
       for (int j = 0; j < 4; j++) {
@@ -603,4 +587,3 @@ text_sensor:
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:chip
-    skip_updates: 10
