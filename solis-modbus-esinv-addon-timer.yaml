@@ -55,6 +55,78 @@
 # read re-syncs the state from the inverter). Timed discharge is useful to
 # force battery export during an export-price peak (e.g. Octopus Flux).
 
+number:
+  - platform: template
+    name: "Timed charge start hours"
+    id: timed_charge_start_hours
+    min_value: 0
+    max_value: 23
+    step: 1
+    optimistic: true
+    
+  - platform: template
+    name: "Timed charge start minutes"
+    id: timed_charge_start_mins
+    min_value: 0
+    max_value: 59
+    step: 1
+    optimistic: true
+    
+  - platform: template
+    name: "Timed charge end hours"
+    id: timed_charge_end_hours
+    min_value: 0
+    max_value: 23
+    step: 1
+    optimistic: true
+    
+  - platform: template
+    name: "Timed charge end minutes"
+    id: timed_charge_end_mins
+    min_value: 0
+    max_value: 59
+    step: 1
+    optimistic: true
+
+button:
+  - platform: template
+    name: "Update charge times"
+    on_press:
+      - lambda: |-
+          ESP_LOGI("WLambda_M", "Write Lambda entry");
+          
+          // New value is in the "x" variable
+          unsigned int s_hours = id(timed_charge_start_hours).state;
+          unsigned int s_mins  = id(timed_charge_start_mins).state;
+          unsigned int e_hours = id(timed_charge_end_hours).state;
+          unsigned int e_mins  = id(timed_charge_end_mins).state;
+          
+          ESP_LOGI("WLambda_M", "Write Lambda %02u:%02u to %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
+          if ((s_hours < 0) || (s_hours > 23) || (s_mins < 0) || (s_mins > 59) ||
+              (e_hours < 0) || (e_hours > 23) || (e_mins < 0) || (e_mins > 59))
+          {
+            ESP_LOGI("WLambda1", "Values out of bounds");
+            return;
+          }
+
+          esphome::modbus_controller::ModbusController *controller = id(modbus_master);
+
+          // create the payload
+          std::vector<uint16_t> payload = {
+            (uint16_t)s_hours, (uint16_t)s_mins, 
+            (uint16_t)e_hours, (uint16_t)e_mins,
+            0, 0,
+            0, 0
+            };
+
+          // Create a modbus command item with the time information as the payload
+          esphome::modbus_controller::ModbusCommandItem set_timer_command =
+              esphome::modbus_controller::ModbusCommandItem::create_write_multiple_command(controller, 43143, 8, payload);
+          // Submit the command to the send queue
+          controller->queue_command(set_timer_command);
+          ESP_LOGI("WLambda_M", "Timer1 set to %02u:%02u - %02u:%02u", s_hours, s_mins, e_hours, e_mins);
+
 text_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_master

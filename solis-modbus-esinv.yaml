@@ -420,6 +420,49 @@ sensor:
     address: 33147
     value_type: U_WORD
     accuracy_decimals: 0
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Household load power today
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 33179
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+    skip_updates: 10
+    
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Household import power today
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 33171
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+    skip_updates: 10
+    
+  - platform: modbus_controller
+    modbus_controller_id: modbus_master
+    name: Household export power today
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 33175
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+    skip_updates: 10
+    
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: Backup load power
