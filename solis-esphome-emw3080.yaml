@@ -67,11 +67,11 @@ time:
 
 api:
   encryption:
-    key: !secret api_encryption_key
+    key: !secret device_name__encryption_key
 
 ota:
   - platform: esphome
-    password: !secret ota_password
+    encryption:
 
 wifi:
   ssid: !secret wifi_ssid
