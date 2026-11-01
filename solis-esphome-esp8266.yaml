@@ -1,7 +1,7 @@
 #
 # solis-esphome-esp8266.yaml -- Ginlong Solis Inverter ESPhome definition for ESP8266 MCUs.
 #
-# (C) 2023-2024 Hajo Noerenberg
+# (C) 2023-2026 Hajo Noerenberg
 #
 # Usage:
 #   1. Depending on your type of device (INV, ESINV or EPM),
@@ -91,6 +91,13 @@ modbus_controller:
     address: 0x1
     modbus_id: modbus_hw
     setup_priority: -10
+    update_interval: 60s
+
+  - id: modbus_master
+    address: 0x1
+    modbus_id: modbus_hw
+    setup_priority: -10
+    update_interval: 600s
 
 button:
   - platform: factory_reset

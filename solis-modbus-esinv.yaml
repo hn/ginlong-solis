@@ -4,7 +4,7 @@
 # ! This file is to be included as a package in an ESPhome definition !
 # ! This file only works with Solis 'ESINV' type inverters !
 #
-# (C) 2023 Hajo Noerenberg
+# (C) 2023-2026 Hajo Noerenberg
 #
 # http://www.noerenberg.de/
 # https://github.com/hn/ginlong-solis
@@ -25,7 +25,7 @@
 
 number:
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Limit output power
     disabled_by_default: true # intentionally disabled, remove if you know what you are doing
     register_type: holding
@@ -39,7 +39,7 @@ number:
     max_value: 110
     multiply: 100
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Set backflow power
     disabled_by_default: true # intentionally disabled, remove if you know what you are doing
     register_type: holding
@@ -162,7 +162,7 @@ binary_sensor:
 
 sensor:
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Total energy
     device_class: energy
     state_class: total_increasing
@@ -172,7 +172,7 @@ sensor:
     value_type: U_DWORD
     reuse_previous_range: false
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Energy this month
     device_class: energy
     state_class: total_increasing
@@ -181,7 +181,7 @@ sensor:
     address: 33031
     value_type: U_DWORD
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Energy last month
     device_class: energy
     state_class: total_increasing
@@ -190,7 +190,7 @@ sensor:
     address: 33033
     value_type: U_DWORD
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Energy today
     device_class: energy
     state_class: total_increasing
@@ -202,7 +202,7 @@ sensor:
     filters:
       - multiply: 0.1
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Energy last day
     device_class: energy
     state_class: total_increasing
@@ -366,7 +366,7 @@ sensor:
     filters:
       - multiply: 0.1
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Battery state of charge (SoC)
     device_class: battery
     state_class: measurement
@@ -375,7 +375,7 @@ sensor:
     address: 33139
     value_type: U_WORD
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Battery state of health (SoH)
     device_class: battery
     state_class: measurement
@@ -422,7 +422,7 @@ sensor:
     accuracy_decimals: 0
 
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Household load power today
     device_class: energy
     state_class: total_increasing
@@ -433,10 +433,9 @@ sensor:
     accuracy_decimals: 1
     filters:
       - multiply: 0.1
-    skip_updates: 10
     
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Household import power today
     device_class: energy
     state_class: total_increasing
@@ -447,10 +446,9 @@ sensor:
     accuracy_decimals: 1
     filters:
       - multiply: 0.1
-    skip_updates: 10
     
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Household export power today
     device_class: energy
     state_class: total_increasing
@@ -461,7 +459,6 @@ sensor:
     accuracy_decimals: 1
     filters:
       - multiply: 0.1
-    skip_updates: 10
     
   - platform: modbus_controller
     modbus_controller_id: modbus_master
@@ -491,7 +488,7 @@ sensor:
             return -x;
         }
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Total battery charge
     device_class: energy
     state_class: total_increasing
@@ -500,7 +497,7 @@ sensor:
     address: 33161
     value_type: U_DWORD
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Total battery discharge
     device_class: energy
     state_class: total_increasing
@@ -521,7 +518,7 @@ text_sensor:
 #  To set the clock, write to 43000 in the same format, see https://solis-exporter.readthedocs.io/en/latest/packet_log/
 #  These may also start at 3073, see https://diysolarforum.com/resources/solis-grid-tied-inverters-2018-rs485-modbus-communication-protocol.272/download
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     id: inverter_clock
     name: "Inverter clock (internal)"
     address: 33022
@@ -567,7 +564,7 @@ text_sensor:
       return x;
 
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Product model
     register_type: read
     address: 33000
@@ -576,7 +573,7 @@ text_sensor:
     entity_category: diagnostic
     icon: mdi:factory
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: DSP software version
     register_type: read
     address: 33001
@@ -586,7 +583,7 @@ text_sensor:
     entity_category: diagnostic
     icon: mdi:chip
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Country standard code
     register_type: read
     address: 33092
@@ -604,7 +601,7 @@ text_sensor:
       }
       return x;
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Inverter SN
     register_type: read
     address: 33004
@@ -622,7 +619,7 @@ text_sensor:
       serialnumber[4 * 4] = 0;
       return std::string(serialnumber);
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Inverter type definition
     register_type: read
     address: 35000

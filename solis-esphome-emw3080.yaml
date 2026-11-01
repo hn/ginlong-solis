@@ -128,6 +128,13 @@ modbus_controller:
     address: 0x1
     modbus_id: modbus_hw
     setup_priority: -10
+    update_interval: 60s
+
+  - id: modbus_slow_master
+    address: 0x1
+    modbus_id: modbus_hw
+    setup_priority: -10
+    update_interval: 600s
 
 button:
   - platform: factory_reset

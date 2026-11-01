@@ -4,7 +4,7 @@
 # ! This file is to be included as a package in an ESPhome definition !
 # ! This file only works with Solis 'INV' type inverters !
 #
-# (C) 2023 Hajo Noerenberg
+# (C) 2023-2026 Hajo Noerenberg
 #
 # http://www.noerenberg.de/
 # https://github.com/hn/ginlong-solis
@@ -25,7 +25,7 @@
 
 number:
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Limit output power
     disabled_by_default: true # intentionally disabled, remove if you know what you are doing
     register_type: holding
@@ -34,7 +34,6 @@ number:
     unit_of_measurement: '%'
     entity_category: config
     icon: mdi:percent
-    skip_updates: 10
     mode: box
     min_value: 0
     max_value: 110
@@ -42,13 +41,13 @@ number:
 
 select:
   - platform: modbus_controller
+    modbus_controller_id: modbus_slow_master
     name: Working Mode
     disabled_by_default: true # intentionally disabled, remove if you know what you are doing
     address: 3040 # = 3041 - 1
     value_type: U_WORD
     entity_category: config
     icon: mdi:cog-outline
-    skip_updates: 10
     optionsmap:
       "No response mode": 0
       "Volt-Watt default": 1
@@ -141,7 +140,7 @@ sensor:
     address: 3006 # = 3007 - 1
     value_type: U_DWORD
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Total energy
     device_class: energy
     state_class: total_increasing
@@ -149,10 +148,8 @@ sensor:
     register_type: read
     address: 3008 # = 3009 - 1
     value_type: U_DWORD
-    force_new_range: true # workaround to seperate reg 3006: "skip_updates applies for all components in the same range"
-    skip_updates: 10
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Energy this month
     device_class: energy
     state_class: total_increasing
@@ -160,9 +157,8 @@ sensor:
     register_type: read
     address: 3010 # = 3011 - 1
     value_type: U_DWORD
-    skip_updates: 10
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Energy last month
     device_class: energy
     state_class: total_increasing
@@ -170,9 +166,8 @@ sensor:
     register_type: read
     address: 3012 # = 3013 - 1
     value_type: U_DWORD
-    skip_updates: 10
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Energy today
     device_class: energy
     state_class: total_increasing
@@ -183,9 +178,8 @@ sensor:
     accuracy_decimals: 1
     filters:
       - multiply: 0.1
-    skip_updates: 10
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Energy last day
     device_class: energy
     state_class: total_increasing
@@ -196,7 +190,6 @@ sensor:
     accuracy_decimals: 1
     filters:
       - multiply: 0.1
-    skip_updates: 10
   - platform: modbus_controller
     modbus_controller_id: modbus_master
     name: DC voltage 1
@@ -284,7 +277,7 @@ sensor:
 
 text_sensor:
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Product model
     register_type: read
     address: 2999 # = 3000 - 1
@@ -292,30 +285,27 @@ text_sensor:
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:factory
-    skip_updates: 10
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: DSP software version
     register_type: read
     address: 3000 # = 3001 - 1
     response_size: 2
-    force_new_range: true # workaround for bug concatening model, dsp and lcd
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:chip
-    skip_updates: 10
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: LCD software version
     register_type: read
     address: 3001 # = 3002 - 1
     response_size: 2
+    reuse_previous_range: false
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:chip
-    skip_updates: 10
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Country standard code
     register_type: read
     address: 3053 # = 3054 - 1
@@ -323,7 +313,6 @@ text_sensor:
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:earth
-    skip_updates: 10
     lambda: |-
       uint16_t value = modbus::helpers::word_from_hex_str(x, 0);
       switch (value) {
@@ -334,16 +323,19 @@ text_sensor:
       }
       return x;
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Inverter SN
     register_type: read
     address: 3060 # = 3061 - 1
-    register_count: 4
+    response_size: 8
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:numeric
-    skip_updates: 10
     lambda: |-
+      if (data.size() < static_cast<size_t>(item->offset) + 8) {
+        ESP_LOGW("SolisSN", "Short serial-number response");
+        return {};
+      }
       char serialnumber[2 * 8 + 1];
       for (int j = 0; j < 8; j++) {
         unsigned int r = data[item->offset + j + (j + 1) % 2 - j % 2];
@@ -352,16 +344,19 @@ text_sensor:
       serialnumber[2 * 8] = 0;
       return std::string(serialnumber);
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     id: inverter_rtc
     register_type: holding
     address: 2999 # = 3000 - 1
-    register_count: 6
+    response_size: 12
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:clock-digital
-    skip_updates: 10
     lambda: |-
+      if (data.size() < static_cast<size_t>(item->offset) + 12) {
+        ESP_LOGW("SyncInverterRTC", "Short RTC response; no clock write");
+        return {};
+      }
       time_t i_t;
       struct tm i_tm = { 0 };
       i_tm.tm_year  = static_cast<int>((static_cast<uint16_t>(data[item->offset + 0]) << 8) | data[item->offset + 1]) + 2000 - 1900;
@@ -377,13 +372,9 @@ text_sensor:
       auto s_espt = id(network_time).now();
       if (s_espt.is_valid()) {
         double deviation = difftime(i_t, s_espt.timestamp);
-        if (abs(deviation) > 42) {
-          std::vector<uint16_t> rtc_data =
-            {(uint16_t) (s_espt.year % 100), s_espt.month, s_espt.day_of_month, s_espt.hour, s_espt.minute, s_espt.second};
-          auto set_rtc_command =
-            modbus_controller::ModbusCommandItem::create_write_multiple_command(modbus_master, item->start_address, item->register_count, rtc_data);
-          modbus_master->queue_command(set_rtc_command);
-          ESP_LOGI("SyncInverterRTC", "Inverter RTC deviation=%.fs, updated RTC to %02d:%02d:%02d %04d-%02d-%02d",
+        if (deviation > 42 || deviation < -42) {
+          id(sync_inverter_rtc).execute();
+          ESP_LOGI("SyncInverterRTC", "Inverter RTC deviation=%.fs, RTC write requested for %02d:%02d:%02d %04d-%02d-%02d",
             deviation, s_espt.hour, s_espt.minute, s_espt.second, s_espt.year, s_espt.month, s_espt.day_of_month);
         }
       } else {
@@ -391,7 +382,7 @@ text_sensor:
       }
       return {};
   - platform: modbus_controller
-    modbus_controller_id: modbus_master
+    modbus_controller_id: modbus_slow_master
     name: Inverter type definition
     register_type: read
     address: 35000
@@ -399,4 +390,41 @@ text_sensor:
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:chip
-    skip_updates: 10
+
+script:
+  - id: sync_inverter_rtc
+    mode: single
+    then:
+      - if:
+          condition:
+            lambda: return id(network_time).now().is_valid();
+          then:
+            - modbus_client.write_multiple_registers:
+                modbus_id: modbus_hw
+                address: 0x01
+                start_address: 2999 # = 3000 - 1
+                values: !lambda |-
+                  const auto t = id(network_time).now();
+                  return std::vector<uint16_t>{
+                    static_cast<uint16_t>(t.year % 100),
+                    static_cast<uint16_t>(t.month),
+                    static_cast<uint16_t>(t.day_of_month),
+                    static_cast<uint16_t>(t.hour),
+                    static_cast<uint16_t>(t.minute),
+                    static_cast<uint16_t>(t.second)
+                  };
+                on_response:
+                  - logger.log: "Solis RTC: write acknowledged by inverter"
+                on_error:
+                  - logger.log:
+                      level: WARN
+                      format: "Solis RTC: inverter rejected clock write"
+                on_no_response:
+                  then:
+                    - logger.log:
+                        level: WARN
+                        format: "Solis RTC: no response to clock write; recheck on next RTC poll"
+                on_not_sent:
+                  - logger.log:
+                      level: WARN
+                      format: "Solis RTC: clock write was not sent"
